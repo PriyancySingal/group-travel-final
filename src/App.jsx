@@ -89,7 +89,7 @@ function App() {
           <Route
             path="/group-dashboard"
             element={
-              <ProtectedRoute requiredRole="admin">
+              <ProtectedRoute>
                 <GroupDashboard />
               </ProtectedRoute>
             }

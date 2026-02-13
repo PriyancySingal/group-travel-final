@@ -29,9 +29,19 @@ const GroupDashboard = () => {
   const [splitType, setSplitType] = useState("equal");
   const [customAmounts, setCustomAmounts] = useState({});
 
-  // Fetch pricing from API
+  // Fetch pricing from API or use pre-calculated pricing
   const fetchPricing = useCallback(async () => {
     if (!hotel || !hotel.Price) return;
+
+    // Use pre-calculated pricing if available from Results page
+    if (hotel._pricing) {
+      setPricing(hotel._pricing);
+      // Update dates from pre-calculated data
+      if (hotel._checkIn) setCheckInDate(hotel._checkIn);
+      if (hotel._checkOut) setCheckOutDate(hotel._checkOut);
+      if (hotel._rooms) setRooms(hotel._rooms);
+      return;
+    }
 
     setLoading(true);
     try {

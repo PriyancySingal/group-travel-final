@@ -37,3 +37,12 @@ export const generateToken = (id) => {
     expiresIn: process.env.JWT_EXPIRE || '7d'
   });
 };
+
+// Admin only - check if user is admin
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Admin only.' });
+  }
+};

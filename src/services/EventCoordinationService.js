@@ -3,6 +3,9 @@
  * Manages event microsites, itineraries, schedules, and personalized guest information
  * Handles centralized coordination for group events (weddings, conferences, MICE)
  */
+import axios from "axios";
+
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 class EventCoordinationService {
   static events = [
@@ -151,12 +154,12 @@ class EventCoordinationService {
     return this.events.find(e => e.id === eventId);
   }
 
-  /**
-   * Get all events
-   */
-  static getAllEvents() {
-    return this.events;
-  }
+  // /**
+  //  * Get all events
+  //  */
+  // static getAllEvents() {
+  //   return this.events;
+  // }
 
   /**
    * Get event schedule
@@ -361,127 +364,43 @@ class EventCoordinationService {
   }
 
   /**
-   * ADMIN METHODS - Event Management CRUD Operations
+   * ADMIN METHODS - REAL BACKEND CRUD
    */
 
-  /**
-   * Get all events with optional filtering
-   */
-  static getAllEvents(filter = {}) {
-    return this.events.filter(event => {
-      if (filter.type && event.type !== filter.type) return false;
-      if (filter.status && event.status !== filter.status) return false;
-      if (filter.search) {
-        const search = filter.search.toLowerCase();
-        return event.name.toLowerCase().includes(search) || 
-               event.location.toLowerCase().includes(search);
-      }
-      return true;
-    });
+  static async getAllEvents(filter = {}) {
+    const res = await axios.get(`${API}/api/events`, { params: filter });
+    return res.data;
   }
 
-  /**
-   * Create a new event
-   */
-  static createEvent(eventData) {
-    const newEvent = {
-      id: Math.max(...this.events.map(e => e.id), 0) + 1,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      ...eventData
-    };
-    this.events.push(newEvent);
-    this.notifyAdminSubscribers({ action: 'create', event: newEvent });
-    return newEvent;
+  static async createEvent(eventData) {
+    const res = await axios.post(`${API}/api/events`, eventData);
+    return res.data;
   }
 
-  /**
-   * Update an existing event
-   */
-  static updateEvent(eventId, eventData) {
-    const index = this.events.findIndex(e => e.id === eventId);
-    if (index === -1) throw new Error("Event not found");
-    
-    const updatedEvent = {
-      ...this.events[index],
-      ...eventData,
-      updatedAt: new Date().toISOString()
-    };
-    this.events[index] = updatedEvent;
-    this.notifyAdminSubscribers({ action: 'update', event: updatedEvent });
-    return updatedEvent;
+  static async updateEvent(eventId, eventData) {
+    const res = await axios.put(`${API}/api/events/${eventId}`, eventData);
+    return res.data;
   }
 
-  /**
-   * Delete an event
-   */
-  static deleteEvent(eventId) {
-    const index = this.events.findIndex(e => e.id === eventId);
-    if (index === -1) throw new Error("Event not found");
-    
-    const deletedEvent = this.events[index];
-    this.events.splice(index, 1);
-    this.notifyAdminSubscribers({ action: 'delete', eventId });
-    return deletedEvent;
+  static async deleteEvent(eventId) {
+    await axios.delete(`${API}/api/events/${eventId}`);
+    return true;
   }
 
-  /**
-   * Get event statistics
-   */
-  static getEventStats() {
+  static async getEventStats() {
+    const events = await this.getAllEvents();
     return {
-      totalEvents: this.events.length,
-      confirmedEvents: this.events.filter(e => e.status === 'confirmed').length,
-      planningEvents: this.events.filter(e => e.status === 'planning').length,
-      totalGuests: this.events.reduce((sum, e) => sum + e.guestCount, 0),
-      totalBudget: this.calculateTotalBudget(),
-      eventsByType: this.groupEventsByType()
+      totalEvents: events.length,
+      confirmedEvents: events.filter(e => e.status === "confirmed").length,
+      planningEvents: events.filter(e => e.status === "planning").length,
+      totalGuests: events.reduce((s, e) => s + (e.guestCount || 0), 0),
+      totalBudget: events.reduce((sum, e) => {
+        const amount = parseInt(e.budget?.replace(/[₹,]/g, "")) || 0;
+        return sum + amount;
+      }, 0)
     };
   }
 
-  /**
-   * Calculate total budget
-   */
-  static calculateTotalBudget() {
-    return this.events.reduce((sum, event) => {
-      const amount = parseInt(event.budget?.replace(/[₹,]/g, '')) || 0;
-      return sum + amount;
-    }, 0);
-  }
-
-  /**
-   * Group events by type
-   */
-  static groupEventsByType() {
-    const types = {};
-    this.events.forEach(event => {
-      types[event.type] = (types[event.type] || 0) + 1;
-    });
-    return types;
-  }
-
-  /**
-   * Admin subscribers for real-time updates
-   */
-  static adminSubscribers = [];
-
-  static subscribeToAdminUpdates(callback) {
-    this.adminSubscribers.push(callback);
-    return () => {
-      const index = this.adminSubscribers.indexOf(callback);
-      if (index > -1) this.adminSubscribers.splice(index, 1);
-    };
-  }
-
-  static notifyAdminSubscribers(update) {
-    this.adminSubscribers.forEach(callback => {
-      try {
-        callback(update);
-      } catch (error) {
-        console.error("Error notifying admin subscriber:", error);
-      }
-    });
-  }
 }
 
 export default EventCoordinationService;

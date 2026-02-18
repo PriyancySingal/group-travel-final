@@ -293,8 +293,10 @@ app.delete("/api/events/:id", async (req, res) => {
 /* ============================================
    SERVER START
 ============================================ */
-app.listen(5000, () => {
-  console.log("🚀 Backend running at http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
   console.log("Guest & Alert APIs: /api/guests, /api/alerts");
   console.log("Pricing API: /api/pricing/calculate");
   console.log("Hotel API: /api/hotels");

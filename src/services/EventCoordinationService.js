@@ -3,9 +3,8 @@
  * Manages event microsites, itineraries, schedules, and personalized guest information
  * Handles centralized coordination for group events (weddings, conferences, MICE)
  */
-import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL; // Render backend
 
 class EventCoordinationService {
   static events = [
@@ -147,260 +146,48 @@ class EventCoordinationService {
     { id: 4, eventId: 1, timestamp: new Date("2024-12-12T16:45:00"), type: "transport", message: "Airport shuttle schedule confirmed", severity: "info", read: true }
   ];
 
-  /**
-   * Get event by ID
-   */
-  static getEventById(eventId) {
-    return this.events.find(e => e.id === eventId);
-  }
+  static getEventById(eventId) { return this.events.find(e => e.id === eventId); }
+  static getEventSchedule(eventId) { return this.schedules.filter(s => s.eventId === eventId); }
+  static getGuestItinerary(guestId) { return this.itineraries[guestId] || null; }
+  static getGuestPersonalization(guestId) { return this.guestPersonalization[guestId] || null; }
+  static getEventUpdates(eventId) { return this.updates.filter(u => u.eventId === eventId).sort((a,b)=>b.timestamp-a.timestamp); }
 
-  // /**
-  //  * Get all events
-  //  */
-  // static getAllEvents() {
-  //   return this.events;
-  // }
-
-  /**
-   * Get event schedule
-   */
-  static getEventSchedule(eventId) {
-    return this.schedules.filter(s => s.eventId === eventId);
-  }
-
-  /**
-   * Get guest's personalized itinerary
-   */
-  static getGuestItinerary(guestId, eventId) {
-    return this.itineraries[guestId] || null;
-  }
-
-  /**
-   * Get guest personalization details
-   */
-  static getGuestPersonalization(guestId, eventId) {
-    return this.guestPersonalization[guestId] || null;
-  }
-
-  /**
-   * Get real-time updates for event
-   */
-  static getEventUpdates(eventId) {
-    return this.updates.filter(u => u.eventId === eventId).sort((a, b) => b.timestamp - a.timestamp);
-  }
-
-  /**
-   * Add new update to event (simulates real-time push)
-   */
-  static addEventUpdate(eventId, updateData) {
-    const newUpdate = {
-      id: Math.max(...this.updates.map(u => u.id), 0) + 1,
-      eventId,
-      timestamp: new Date(),
-      ...updateData
-    };
-    this.updates.unshift(newUpdate);
-    this.notifyUpdateSubscribers(newUpdate);
-    return newUpdate;
-  }
-
-  /**
-   * Mark update as read
-   */
-  static markUpdateAsRead(updateId) {
-    const update = this.updates.find(u => u.id === updateId);
-    if (update) {
-      update.read = true;
-    }
-  }
-
-  /**
-   * Get event statistics
-   */
-  static getEventStats(eventId) {
-    const event = this.getEventById(eventId);
-    const schedule = this.getEventSchedule(eventId);
-    const updates = this.getEventUpdates(eventId);
-
-    return {
-      eventName: event?.name,
-      totalGuests: event?.guestCount || 0,
-      totalActivities: schedule.reduce((sum, day) => sum + day.activities.length, 0),
-      totalDays: schedule.length,
-      unreadUpdates: updates.filter(u => !u.read).length,
-      lastUpdate: updates[0]?.timestamp || null
-    };
-  }
-
-  /**
-   * Get all guest information for event
-   */
-  static getEventGuests(eventId) {
-    return Object.values(this.guestPersonalization).filter(
-      g => g.eventId === eventId
-    );
-  }
-
-  /**
-   * Update guest preferences
-   */
-  static updateGuestPreferences(guestId, preferences) {
-    if (this.guestPersonalization[guestId]) {
-      this.guestPersonalization[guestId] = {
-        ...this.guestPersonalization[guestId],
-        ...preferences
-      };
-      return this.guestPersonalization[guestId];
-    }
-    return null;
-  }
-
-  /**
-   * Get dietary requirements summary
-   */
-  static getDietarySummary(eventId) {
-    const guests = this.getEventGuests(eventId);
-    const dietary = {};
-
-    guests.forEach(guest => {
-      guest.dietaryRestrictions.forEach(restriction => {
-        dietary[restriction] = (dietary[restriction] || 0) + 1;
-      });
-    });
-
-    return dietary;
-  }
-
-  /**
-   * Get accessibility requirements summary
-   */
-  static getAccessibilitySummary(eventId) {
-    const guests = this.getEventGuests(eventId);
-
-    return {
-      wheelchairAccessible: guests.filter(g => g.hotelAssignment?.wheelchairAccessible).length,
-      mobilityAssistance: guests.filter(g => g.accessibility && g.accessibility.includes("Mobility")).length,
-      groundFloor: guests.filter(g => g.hotelAssignment?.floor === 1).length,
-      specialRequests: guests.filter(g => g.specialRequests).length
-    };
-  }
-
-  // Subscribers for real-time updates
   static updateSubscribers = [];
+  static subscribeToUpdates(cb){ this.updateSubscribers.push(cb); return ()=>this.updateSubscribers=this.updateSubscribers.filter(x=>x!==cb); }
+  static notifyUpdateSubscribers(u){ this.updateSubscribers.forEach(cb=>cb(u)); }
 
-  /**
-   * Subscribe to event updates
-   */
-  static subscribeToUpdates(callback) {
-    this.updateSubscribers.push(callback);
-    return () => {
-      this.updateSubscribers = this.updateSubscribers.filter(cb => cb !== callback);
-    };
-  }
+  static getEventGuests(eventId){ return Object.values(this.guestPersonalization).filter(g=>g.eventId===eventId); }
 
-  /**
-   * Notify subscribers of new updates
-   */
-  static notifyUpdateSubscribers(update) {
-    this.updateSubscribers.forEach(callback => {
-      try {
-        callback(update);
-      } catch (error) {
-        console.error("Error notifying update subscriber:", error);
-      }
-    });
-  }
-
-  /**
-   * Export event data as JSON
-   */
-  static exportEventData(eventId) {
-    return {
-      event: this.getEventById(eventId),
-      schedule: this.getEventSchedule(eventId),
-      guests: this.getEventGuests(eventId),
-      updates: this.getEventUpdates(eventId),
-      dietary: this.getDietarySummary(eventId),
-      accessibility: this.getAccessibilitySummary(eventId)
-    };
-  }
-
-  /**
-   * Export event data as CSV
-   */
-  static exportEventAsCSV(eventId) {
-    const guests = this.getEventGuests(eventId);
-
-    if (guests.length === 0) return "";
-
-    const headers = [
-      "Guest Name",
-      "Email",
-      "Room Number",
-      "Room Type",
-      "Check-in",
-      "Dietary Requirements",
-      "Special Requests",
-      "Emergency Contact"
-    ];
-
-    const rows = guests.map(guest => [
-      guest.name,
-      guest.email,
-      guest.hotelAssignment?.roomNumber || "N/A",
-      guest.hotelAssignment?.roomType || "N/A",
-      guest.hotelAssignment?.checkIn || "N/A",
-      guest.dietaryRestrictions?.join(";") || "None",
-      guest.specialRequests || "None",
-      guest.emergencyContact
-    ]);
-
-    const csv = [
-      headers.join(","),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-    ].join("\n");
-
-    return csv;
-  }
-
-  /**
-   * ADMIN METHODS - REAL BACKEND CRUD
-   */
+  /* ===== BACKEND CRUD (SAFE) ===== */
 
   static async getAllEvents(filter = {}) {
-    const res = await axios.get(`${API}/api/events`, { params: filter });
-    return res.data;
+    const q = new URLSearchParams(filter).toString();
+    const res = await fetch(`${API}/api/events?${q}`);
+    return res.json();
   }
 
   static async createEvent(eventData) {
-    const res = await axios.post(`${API}/api/events`, eventData);
-    return res.data;
+    const res = await fetch(`${API}/api/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData)
+    });
+    return res.json();
   }
 
   static async updateEvent(eventId, eventData) {
-    const res = await axios.put(`${API}/api/events/${eventId}`, eventData);
-    return res.data;
+    const res = await fetch(`${API}/api/events/${eventId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData)
+    });
+    return res.json();
   }
 
   static async deleteEvent(eventId) {
-    await axios.delete(`${API}/api/events/${eventId}`);
+    await fetch(`${API}/api/events/${eventId}`, { method: "DELETE" });
     return true;
   }
-
-  static async getEventStats() {
-    const events = await this.getAllEvents();
-    return {
-      totalEvents: events.length,
-      confirmedEvents: events.filter(e => e.status === "confirmed").length,
-      planningEvents: events.filter(e => e.status === "planning").length,
-      totalGuests: events.reduce((s, e) => s + (e.guestCount || 0), 0),
-      totalBudget: events.reduce((sum, e) => {
-        const amount = parseInt(e.budget?.replace(/[₹,]/g, "")) || 0;
-        return sum + amount;
-      }, 0)
-    };
-  }
-
 }
 
 export default EventCoordinationService;

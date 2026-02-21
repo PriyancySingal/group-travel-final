@@ -6,7 +6,12 @@ const HotelDetails = () => {
   const navigate = useNavigate();
   const hotel = location.state;
 
-  // 🔒 Safety check (VERY IMPORTANT)
+  // Handle navigation to GroupPlanForm
+  const handleAddToGroupPlan = () => {
+    navigate("/create-group-plan", { state: { hotel } });
+  };
+
+  // Safety check
   if (!hotel) {
     return (
       <>
@@ -24,28 +29,26 @@ const HotelDetails = () => {
       <Navbar />
 
       <div className="container fade-in" style={{ marginTop: "60px" }}>
-        {/* ❌ IMAGE REMOVED FOR NOW (was causing blank page) */}
-
         <h1 style={{ fontSize: "36px", marginBottom: "10px" }}>
-          {hotel.name}
+          {hotel.name || hotel.HotelName}
         </h1>
 
         <p style={{ color: "#c7d2fe", marginBottom: "10px" }}>
-          📍 {hotel.location}
+          📍 {hotel.location || hotel.Location}
         </p>
 
         <p style={{ fontSize: "18px", marginBottom: "10px" }}>
-          ⭐ {hotel.rating}
+          ⭐ {hotel.rating || hotel.StarRating}
         </p>
 
         <p style={{ fontSize: "20px", fontWeight: 600 }}>
-          💰 {hotel.price}
+          💰 {hotel.price || hotel.Price?.TotalPrice || "View in pricing"}
         </p>
 
         <button
           className="btn-primary"
           style={{ marginTop: "24px" }}
-          onClick={() => navigate("/group-dashboard", { state: hotel })}
+          onClick={handleAddToGroupPlan}
         >
           Add to Group Plan
         </button>

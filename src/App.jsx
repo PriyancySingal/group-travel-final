@@ -11,6 +11,8 @@ import Home from "./pages/Home";
 import Results from "./pages/Results";
 import HotelDetails from "./pages/HotelDetails";
 import GroupDashboard from "./pages/GroupDashboard";
+import GroupPlanForm from "./pages/GroupPlanForm";
+import GroupSharePage from "./pages/GroupSharePage";
 import Reports from "./pages/Reports";
 import SecureLanding from "./pages/SecureLanding";
 import EventMicrosite from "./pages/Event/EventMicrosite";
@@ -93,6 +95,18 @@ function App() {
                 <GroupDashboard />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/create-group-plan"
+            element={
+              <ProtectedRoute>
+                <GroupPlanForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/group/:shareCode"
+            element={<GroupSharePage />}
           />
 
           {/* Client Routes */}

@@ -1,15 +1,48 @@
+// import mongoose from 'mongoose';
+
+// const eventSchema = new mongoose.Schema({
+//   name: { type: String, required: true },
+//   type: { type: String, required: true },
+//   description: { type: String },
+//   location: { type: String, required: true },
+//   startDate: { type: Date, required: true },
+//   endDate: { type: Date, required: true },
+//   status: { type: String, default: 'planning' },
+//   organizer: { type: String, required: true },
+//   logo: { type: String, default: '🎫' },
+//   hotel: { type: String },
+//   guestCount: { type: Number, required: true },
+//   budget: { type: String, required: true },
+//   createdBy: { type: String }  // ✅ NOT ObjectId
+// }, { timestamps: true });
+
+// export const Event = mongoose.model('Event', eventSchema);
 import mongoose from "mongoose";
 
-const eventSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  date: { type: Date, required: true },
-  venue: { type: String },
-  description: { type: String },
-  additionalFields: { type: Map, of: String }, // <-- dynamic fields (like extra columns)
-  createdBy: {
-      userId: String,
-      role: String // "admin" or "client"
-    },
-}, { timestamps: true });
+const EventSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    type: { type: String, required: true },
+    description: String,
+    location: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    status: { type: String, default: "planning" },
+    organizer: { type: String, required: true },
+    logo: String,
+    hotel: String,
+    guestCount: { type: Number, required: true },
+    budget: { type: String, required: true },
 
-export const Event = mongoose.model("Event", eventSchema);
+    // 🔥 THIS IS THE IMPORTANT FIX
+    createdBy: {
+      userId: { type: String, required: true },
+      role: { type: String, required: true }
+    }
+  },
+  { timestamps: true }
+);
+
+// ✅ Prevent model overwrite/caching issues
+export const Event =
+  mongoose.models.Event || mongoose.model("Event", EventSchema);

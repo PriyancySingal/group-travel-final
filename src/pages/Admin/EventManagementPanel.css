@@ -201,6 +201,7 @@
 
 .search-box {
   flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   min-width: 250px;
   position: relative;
   display: flex;
@@ -361,7 +362,9 @@
   margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
+}@keyframes slideUp {
+  from {
+    transform: translateY(10px);
     opacity: 0;
   }
   to {
@@ -435,6 +438,7 @@
 
 .search-box {
   flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   min-width: 250px;
   position: relative;
   display: flex;
@@ -769,6 +773,7 @@
 
   .search-box {
     min-width: 100%;
+    
   }
 
   .table-header, .table-row {

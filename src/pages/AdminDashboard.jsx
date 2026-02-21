@@ -40,7 +40,8 @@ const AdminDashboard = () => {
       icon: "📦",
       title: "Event Inventory",
       description: "Manage rooms, transport, dining & activities",
-      action: () => navigate("/event/1"),
+      //action: () => navigate("/event/1"),
+      action:() => navigate("/admin/events"),
       color: "#8b5cf6",
     },
     {
@@ -152,7 +153,7 @@ const AdminDashboard = () => {
           <button className="action-btn" onClick={() => navigate("/guests")}>
             <span>➕</span> Add New Guest
           </button>
-          <button className="action-btn" onClick={() => navigate("/event/1")}>
+          <button className="action-btn" onClick={() => navigate("/admin/events")}>
             <span>🏢</span> View Event Details
           </button>
           <button className="action-btn" onClick={() => navigate("/reports")}>

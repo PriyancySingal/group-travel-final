@@ -18,7 +18,8 @@ const EventSchedule = ({ eventId, schedule }) => {
       <h2>📅 Event Schedule</h2>
       <div className="schedule-container">
         {schedule.map((day, index) => (
-          <div key={day.id} className="schedule-day">
+          //<div key={day.id} className="schedule-day">
+          <div key={`${eventId}-${day.day}`} className="schedule-day">
             <button
               className={`day-header ${expandedDay === index ? "expanded" : ""}`}
               onClick={() => setExpandedDay(expandedDay === index ? -1 : index)}
@@ -34,7 +35,8 @@ const EventSchedule = ({ eventId, schedule }) => {
             {expandedDay === index && (
               <div className="day-activities">
                 {day.activities.map((activity, actIndex) => (
-                  <div key={actIndex} className="activity-item">
+                  //<div key={actIndex} className="activity-item">
+                  <div key={`${activity.time}-${activity.name}`} className="activity-item">
                     <div className="activity-time">
                       <span className="time-badge">🕐 {activity.time}</span>
                     </div>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://group-travel-final.onrender.com/api/events";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 /* ===============================
    AXIOS CONFIG WITH AUTH
@@ -10,13 +10,64 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const authUser = JSON.parse(localStorage.getItem("auth_user"));
+const token = authUser?.token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
-
+const DEMO_INVENTORY = {
+  eventName: "Demo Event",
+  rooms: [
+    {
+      id: "room-1",
+      type: "Deluxe",
+      capacity: 2,
+      available: 5,
+      accessible: false,
+      highFloor: true
+    },
+    {
+      id: "room-2",
+      type: "Accessible Room",
+      capacity: 2,
+      available: 2,
+      accessible: true,
+      groundFloor: true
+    }
+  ],
+  dining: [
+    {
+      id: "dining-1",
+      mealType: "Lunch",
+      capacity: 100,
+      available: 60,
+      dietaryOptions: ["veg", "vegan", "gluten-free"]
+    }
+  ],
+  activities: [
+    {
+      id: "activity-1",
+      name: "City Tour",
+      description: "Guided city tour",
+      capacity: 30,
+      registered: 10,
+      available: 20,
+      time: "10:00 AM",
+      duration: "2h"
+    }
+  ],
+  transport: [
+    {
+      id: "transport-1",
+      type: "Bus",
+      capacity: 40,
+      available: 40,
+      reserved: 0
+    }
+  ]
+};
 /* ===============================
    EVENT APIs
 ================================ */
@@ -56,7 +107,25 @@ class EventInventoryService {
   /* -----------------------------
      GET INVENTORY FROM MONGODB
   ------------------------------ */
- static async getInventory(eventId) {
+//  
+static async getInventory(eventId) {
+  // ✅ SAFETY CHECK (ADD THIS)
+  if (!eventId) {
+    console.warn("getInventory called without eventId");
+    return {
+      rooms: [],
+      transport: [],
+      dining: [],
+      activities: []
+    };
+  }
+
+  // ✅ If demo event → do NOT call backend
+  if (eventId.startsWith("demo-")) {
+  return DEMO_INVENTORY;
+}
+
+  // ✅ Real backend event
   const res = await api.get(`/${eventId}`);
   let inventory = res.data.data.additionalFields?.inventory;
 
@@ -222,6 +291,10 @@ class EventInventoryService {
     await this.saveInventory(eventId, inventory);
     return true;
   }
+  static async getEventInventory(eventId) {
+  return await this.getInventory(eventId);
+}
+  
 }
 
 export default EventInventoryService;

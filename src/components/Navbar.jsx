@@ -74,7 +74,7 @@ const Navbar = () => {
             // Admin Navigation
             <>
               <NavBtn label="Guests" onClick={() => navigate("/guests")} />
-              <NavBtn label="Event" onClick={() => navigate("/event/1")} />
+              <NavBtn label="Event" onClick={() => navigate("/admin/events")} />
               <NavBtn label="Reports" onClick={() => navigate("/reports")} />
               <NavBtn label="Resources" onClick={() => navigate("/resource-allocation")} />
               <NavBtn label="AI Insights" onClick={() => navigate("/ai-insights")} />

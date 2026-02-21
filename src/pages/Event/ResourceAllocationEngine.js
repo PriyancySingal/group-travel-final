@@ -11,9 +11,9 @@ class ResourceAllocationEngine {
   /**
    * Suggest room assignments based on guest preferences and availability
    */
-  static suggestRoomAssignments(eventId) {
+  static async suggestRoomAssignments(eventId) {
     try {
-      const inventory = EventInventoryService.getEventInventory(eventId);
+      const inventory = await EventInventoryService.getEventInventory(eventId);
       const guests = GuestPreferencesService.getAllGuests();
 
       if (!inventory || !guests.length) return [];
@@ -133,9 +133,9 @@ class ResourceAllocationEngine {
   /**
    * Suggest dining options based on guest preferences
    */
-  static suggestDiningOptions(eventId) {
+  static async suggestDiningOptions(eventId) {
     try {
-      const inventory = EventInventoryService.getEventInventory(eventId);
+      const inventory = await EventInventoryService.getEventInventory(eventId);
       const guests = GuestPreferencesService.getAllGuests();
 
       if (!inventory || !guests.length) return [];
@@ -185,9 +185,9 @@ class ResourceAllocationEngine {
   /**
    * Suggest activities based on guest interests
    */
-  static suggestActivities(eventId) {
+  static async suggestActivities(eventId) {
     try {
-      const inventory = EventInventoryService.getEventInventory(eventId);
+      const inventory = await EventInventoryService.getEventInventory(eventId);
       const guests = GuestPreferencesService.getAllGuests();
 
       if (!inventory || !guests.length) return [];

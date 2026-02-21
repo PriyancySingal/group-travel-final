@@ -19,11 +19,38 @@ const EventForm = ({ event, onSubmit, onCancel, loading }) => {
 
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (event) {
-      setFormData(event);
-    }
-  }, [event]);
+  // useEffect(() => {
+  //   if (event) {
+  //     setFormData(event);
+  //   }
+  // }, [event]);
+useEffect(() => {
+  if (event) {
+    console.log("Event data passed to form:", event); // Add this log
+    // Ensure startDate and endDate are formatted correctly for <input type="date">
+    setFormData({
+      name: event.name || "",
+      type: event.type || "wedding",
+      description: event.description || "",
+      location: event.location || "",
+      // startDate: event.startDate ? event.startDate.toISOString().split("T")[0] : "",  // Format date as YYYY-MM-DD
+      // endDate: event.endDate ? event.endDate.toISOString().split("T")[0] : "",          // Format date as YYYY-MM-DD
+      startDate: event.startDate
+  ? new Date(event.startDate).toISOString().split("T")[0]
+  : "",
+
+endDate: event.endDate
+  ? new Date(event.endDate).toISOString().split("T")[0]
+  : "",
+      status: event.status || "planning",
+      organizer: event.organizer || "",
+      logo: event.logo || "🎫",
+      hotel: event.hotel || "",
+      guestCount: event.guestCount || 0,
+      budget: event.budget || ""
+    });
+  }
+}, [event]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -54,12 +81,24 @@ const EventForm = ({ event, onSubmit, onCancel, loading }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      const formDataCopy = { ...formData };
+console.log("Form Data before submit:", formDataCopy); // Add this log
+    // Ensure dates are in the correct format (YYYY-MM-DD)
+    formDataCopy.startDate = new Date(formDataCopy.startDate).toISOString().split("T")[0];  // Format date
+    formDataCopy.endDate = new Date(formDataCopy.endDate).toISOString().split("T")[0];      // Format date
+      // Call the onSubmit prop passed from EventManagementPanel
+      try {
+        await onSubmit(formDataCopy); // onSubmit is passed from EventManagementPanel
+        alert('Event created successfully!');
+      } catch (error) {
+        alert('Error creating event');
+      }
     }
-  };
+};
+
 
   const eventTypes = [
     { value: "wedding", label: "💍 Wedding", description: "Destination wedding" },

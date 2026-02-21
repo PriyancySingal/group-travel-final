@@ -3,12 +3,27 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.0",
-    "express": "^4.19.2"
-  }
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "express-validator": "^7.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.1"
+  },
+  "description": "AI-Powered Group Travel Coordination Platform Backend",
+  "main": "server.js",
+  "keywords": [
+    "travel",
+    "group-booking",
+    "hackathon",
+    "mern"
+  ],
+  "author": "",
+  "license": "ISC"
 }

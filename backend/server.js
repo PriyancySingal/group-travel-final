@@ -1,276 +1,113 @@
 import express from "express";
-import axios from "axios";
 import cors from "cors";
 import dotenv from "dotenv";
+import axios from "axios";
+import connectDB from "./config/db.js";
+import { errorHandler, notFound } from "./middleware/errorHandler.js";
+
+// Route imports
+import authRoutes from "./routes/authRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
+import guestRoutes from "./routes/guestRoutes.js";
+import pricingRoutes from "./routes/pricingRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
+import alertRoutes from "./routes/alertRoutes.js";
 
 dotenv.config();
 
+// Connect to MongoDB
+connectDB();
+
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// In-memory storage for guests and alerts (replace with database in production)
-const guestStore = {
-  guests: [],
-  alerts: []
-};
-
 // Health check
 app.get("/", (req, res) => {
-  res.send("Backend running");
+  res.send(`
+    <html>
+      <head>
+        <title>Group Travel Backend API</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+          .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+          h1 { color: #333; }
+          .endpoint { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+          .method { display: inline-block; padding: 5px 10px; border-radius: 3px; font-weight: bold; margin-right: 10px; }
+          .get { background: #61affe; color: white; }
+          .post { background: #49cc90; color: white; }
+          .patch { background: #fca130; color: white; }
+          .delete { background: #f93e3e; color: white; }
+          code { background: #e9ecef; padding: 2px 6px; border-radius: 3px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>🏨 Group Travel Backend API</h1>
+          <p>Welcome to the AI-Powered Group Travel Coordination Platform API</p>
+          
+          <h2>Available Endpoints:</h2>
+          
+          <h3>Authentication</h3>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/register</code> - Register new user</div>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/login</code> - Login user</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/auth/me</code> - Get current user</div>
+          
+          <h3>Bookings</h3>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/bookings</code> - Get all bookings</div>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/bookings</code> - Create booking</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/bookings/:id</code> - Get booking</div>
+          <div class="endpoint"><span class="method patch">PATCH</span> <code>/api/bookings/:id/confirm-member</code> - Confirm member</div>
+          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/bookings/:id</code> - Delete booking</div>
+          
+          <h3>Guests</h3>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests</code> - Get all guests</div>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/guests</code> - Create guest</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests/analytics/dietary</code> - Dietary analytics</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests/analytics/special-needs</code> - Special needs analytics</div>
+          
+          <h3>Pricing</h3>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/pricing/calculate</code> - Calculate pricing</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/pricing/config</code> - Get pricing config</div>
+          
+          <h3>Analytics</h3>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/analytics/dashboard</code> - Dashboard (Admin)</div>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/analytics/revenue</code> - Revenue (Admin)</div>
+          
+          <h3>AI Features</h3>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/guest-matching</code> - Guest matching</div>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/networking</code> - Networking recommendations</div>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/activities</code> - Activity suggestions</div>
+          
+          <h3>Alerts</h3>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/alerts</code> - Get alerts</div>
+          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/alerts/:id</code> - Delete alert</div>
+          
+          <h3>Hotel Search</h3>
+          <div class="endpoint"><span class="method post">POST</span> <code>/api/hotels</code> - Search hotels</div>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
-// ============================================
-// GUEST PROFILES & PREFERENCES API ENDPOINTS
-// ============================================
+// Mount routes
+app.use("/api/auth", authRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/guests", guestRoutes);
+app.use("/api/pricing", pricingRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/alerts", alertRoutes);
 
-// GET all guests
-app.get("/api/guests", (req, res) => {
-  try {
-    res.json({
-      success: true,
-      data: guestStore.guests,
-      count: guestStore.guests.length
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to fetch guests" });
-  }
-});
-
-// GET a single guest by ID
-app.get("/api/guests/:id", (req, res) => {
-  try {
-    const guest = guestStore.guests.find(g => g.id === parseInt(req.params.id));
-    if (!guest) {
-      return res.status(404).json({ error: "Guest not found" });
-    }
-    res.json({ success: true, data: guest });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to fetch guest" });
-  }
-});
-
-// CREATE or UPDATE a guest profile
-app.post("/api/guests", (req, res) => {
-  try {
-    const guestData = req.body;
-
-    // Validate required fields
-    if (!guestData.name) {
-      return res.status(400).json({ error: "Guest name is required" });
-    }
-
-    const existingIndex = guestStore.guests.findIndex(
-      g => g.id === guestData.id
-    );
-
-    let isUpdate = false;
-    if (existingIndex >= 0) {
-      isUpdate = true;
-      guestStore.guests[existingIndex] = guestData;
-    } else {
-      guestStore.guests.push(guestData);
-    }
-
-    // Create alert for preference changes
-    const alertType = isUpdate ? "preference_update" : "new_guest";
-    const alertMessage = isUpdate
-      ? `${guestData.name}'s preferences have been updated`
-      : `${guestData.name} has been added to the guest list`;
-
-    const alert = {
-      id: Date.now(),
-      type: alertType,
-      title: isUpdate ? "Guest Preference Updated" : "New Guest Added",
-      message: alertMessage,
-      guestName: guestData.name,
-      timestamp: new Date().toISOString()
-    };
-
-    guestStore.alerts.unshift(alert);
-    if (guestStore.alerts.length > 100) {
-      guestStore.alerts.pop();
-    }
-
-    res.json({
-      success: true,
-      message: isUpdate ? "Guest updated successfully" : "Guest added successfully",
-      data: guestData,
-      alert: alert
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to save guest" });
-  }
-});
-
-// DELETE a guest
-app.delete("/api/guests/:id", (req, res) => {
-  try {
-    const guestId = parseInt(req.params.id);
-    const guestIndex = guestStore.guests.findIndex(g => g.id === guestId);
-
-    if (guestIndex === -1) {
-      return res.status(404).json({ error: "Guest not found" });
-    }
-
-    const removedGuest = guestStore.guests.splice(guestIndex, 1)[0];
-
-    const alert = {
-      id: Date.now(),
-      type: "guest_removed",
-      title: "Guest Removed",
-      message: `${removedGuest.name} has been removed from the guest list`,
-      guestName: removedGuest.name,
-      timestamp: new Date().toISOString()
-    };
-
-    guestStore.alerts.unshift(alert);
-
-    res.json({
-      success: true,
-      message: "Guest deleted successfully",
-      alert: alert
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to delete guest" });
-  }
-});
-
-// GET dietary requirements summary
-app.get("/api/guests/analytics/dietary", (req, res) => {
-  try {
-    const summary = {};
-    guestStore.guests.forEach(guest => {
-      guest.dietaryRequirements.forEach(diet => {
-        summary[diet] = (summary[diet] || 0) + 1;
-      });
-    });
-
-    res.json({
-      success: true,
-      data: summary
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to fetch dietary summary" });
-  }
-});
-
-// GET special needs summary
-app.get("/api/guests/analytics/special-needs", (req, res) => {
-  try {
-    const summary = {
-      wheelchairAccessible: guestStore.guests.filter(g => g.wheelchairAccessible).length,
-      mobilityAssistance: guestStore.guests.filter(g => g.mobilityAssistance).length,
-      totalGuests: guestStore.guests.length,
-      withSpecialNeeds: guestStore.guests.filter(g => g.specialNeeds.length > 0).length
-    };
-
-    res.json({
-      success: true,
-      data: summary
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to fetch special needs summary" });
-  }
-});
-
-// GET all alerts
-app.get("/api/alerts", (req, res) => {
-  try {
-    const limit = req.query.limit ? parseInt(req.query.limit) : 50;
-    const alerts = guestStore.alerts.slice(0, limit);
-
-    res.json({
-      success: true,
-      data: alerts,
-      count: alerts.length
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to fetch alerts" });
-  }
-});
-
-// DISMISS an alert
-app.delete("/api/alerts/:id", (req, res) => {
-  try {
-    const alertId = parseInt(req.params.id);
-    const alertIndex = guestStore.alerts.findIndex(a => a.id === alertId);
-
-    if (alertIndex === -1) {
-      return res.status(404).json({ error: "Alert not found" });
-    }
-
-    guestStore.alerts.splice(alertIndex, 1);
-
-    res.json({
-      success: true,
-      message: "Alert dismissed successfully"
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to dismiss alert" });
-  }
-});
-
-// CLEAR all alerts
-app.delete("/api/alerts", (req, res) => {
-  try {
-    guestStore.alerts = [];
-
-    res.json({
-      success: true,
-      message: "All alerts cleared"
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to clear alerts" });
-  }
-});
-
-// GET guest report
-app.get("/api/guests/report/summary", (req, res) => {
-  try {
-    const dietarySummary = {};
-    guestStore.guests.forEach(guest => {
-      guest.dietaryRequirements.forEach(diet => {
-        dietarySummary[diet] = (dietarySummary[diet] || 0) + 1;
-      });
-    });
-
-    const report = {
-      totalGuests: guestStore.guests.length,
-      dietarySummary,
-      specialNeedsSummary: {
-        wheelchairAccessible: guestStore.guests.filter(g => g.wheelchairAccessible).length,
-        mobilityAssistance: guestStore.guests.filter(g => g.mobilityAssistance).length
-      },
-      guestsList: guestStore.guests,
-      generatedAt: new Date().toISOString()
-    };
-
-    res.json({
-      success: true,
-      data: report
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Failed to generate report" });
-  }
-});
-
-// 🔥 HOTEL SEARCH API
+// Hotel Search API (External TBO API)
 app.post("/api/hotels", async (req, res) => {
   try {
     const { CityId, CheckInDate, CheckOutDate, Rooms } = req.body;
 
-    // Validate required fields
     if (!CityId || !CheckInDate || !CheckOutDate || !Rooms) {
       return res.status(400).json({
         error: "Missing required fields: CityId, CheckInDate, CheckOutDate, Rooms",
@@ -280,7 +117,6 @@ app.post("/api/hotels", async (req, res) => {
 
     console.log(`[Hotel Search] Searching: City=${CityId}, CheckIn=${CheckInDate}, CheckOut=${CheckOutDate}, Rooms=${Rooms}`);
 
-    // Call TBO API with proper formatting
     const tboResponse = await axios.post(
       process.env.TBO_API_URL,
       {
@@ -314,7 +150,6 @@ app.post("/api/hotels", async (req, res) => {
       data: error.response?.data
     });
 
-    // Return error with more details
     if (error.response) {
       return res.status(error.response.status || 500).json({
         error: error.response.data?.Error || "TBO API Error",
@@ -330,12 +165,14 @@ app.post("/api/hotels", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Backend running at http://localhost:5000");
-  console.log("Guest Preferences API endpoints available:");
-  console.log("  GET    /api/guests");
-  console.log("  POST   /api/guests");
-  console.log("  DELETE /api/guests/:id");
-  console.log("  GET    /api/alerts");
-  console.log("  DELETE /api/alerts/:id");
+// Error handling middleware
+app.use(notFound);
+app.use(errorHandler);
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`\n🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`📡 API available at http://localhost:${PORT}`);
+  console.log(`🔗 MongoDB: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/group-travel'}`);
 });

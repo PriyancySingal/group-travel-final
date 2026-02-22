@@ -1139,7 +1139,8 @@ static getInventoryByEventId(eventId) {
 
     const res = await fetch(BASE_URL, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
       }
     });
 
@@ -1168,6 +1169,8 @@ static getInventoryByEventId(eventId) {
     let backendEvents = [];
 
     try {
+      // ADD THIS LINE TO LOG THE URL BEING CALLED
+    console.log("Fetching events from:", BASE_URL);
       backendEvents = await this.fetchBackendEvents();
     } catch (err) {
       console.warn("Backend unavailable, demo events only");

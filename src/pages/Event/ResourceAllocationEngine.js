@@ -225,9 +225,9 @@ class ResourceAllocationEngine {
   /**
    * Suggest transport options
    */
-  static suggestTransportOptions(eventId) {
+  static async suggestTransportOptions(eventId) {
     try {
-      const inventory = EventInventoryService.getEventInventory(eventId);
+      const inventory = await EventInventoryService.getEventInventory(eventId);
       const guests = GuestPreferencesService.getAllGuests();
 
       if (!inventory || !guests.length) return [];
@@ -235,7 +235,7 @@ class ResourceAllocationEngine {
       const suggestions = [];
       const totalGuests = guests.length;
 
-      inventory.transport.forEach(transport => {
+      (inventory.transport || []).forEach(transport => {
         if (transport.available > 0) {
           const requiredVehicles = Math.ceil(totalGuests / transport.capacity);
           const availability = Math.floor(transport.available / transport.capacity);

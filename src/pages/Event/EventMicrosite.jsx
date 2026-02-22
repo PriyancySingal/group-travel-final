@@ -388,7 +388,34 @@ const EventMicrosite = () => {
 
   loadEvent();
 }, [eventId]);
+const eventDays =
+  event?.startDate && event?.endDate
+    ? Math.max(
+        1,
+        Math.ceil(
+          (new Date(event.endDate) - new Date(event.startDate)) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      )
+    : null;
 
+// For demo events, calculate from statsData
+const statsData = event?.isDemo
+  ? EventCoordinationService.getEventStats(eventId)
+  : null;
+
+// For created events, we assume totalGuests is part of the event data
+const totalGuests = event?.isDemo
+  ? statsData?.totalGuests
+  : event?.totalGuests ?? 0;
+
+// For demo events, calculate total activities from statsData, otherwise 0
+const totalActivities = event?.isDemo
+  ? statsData?.totalActivities
+  : 0; // Assuming no activity data for created events unless specified
+
+// If the event is a demo, you may want to show totalGuests and eventDays
+// If it's a created event, handle the default or existing values in the event
   const handleUpdateRead = (updateId) => {
     setUpdates(prev =>
       prev.map(u => u.id === updateId ? { ...u, read: true } : u)

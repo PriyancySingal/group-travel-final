@@ -837,8 +837,10 @@ static demoUpdates = [
     eventId: "demo-1",
     type: "schedule",
     icon: "ℹ️",
+    severity: "info",
     date: "12/15/2024",
     message: "Dinner time updated from 8:00 PM to 8:30 PM",
+    timestamp: Date.now() - 5 * 60 * 1000, // 5 minutes ago
     read: false
   },
   {
@@ -846,8 +848,10 @@ static demoUpdates = [
     eventId: "demo-1",
     type: "accommodation",
     icon: "✅",
+    severity: "success",
     date: "12/14/2024",
     message: "Room upgrade available for guests in Block A",
+    timestamp: Date.now() - 7200000, // 2 hours ago
     read: false
   },
   {
@@ -855,8 +859,10 @@ static demoUpdates = [
     eventId: "demo-1",
     type: "activity",
     icon: "⚠️",
+    severity: "warning",
     date: "12/13/2024",
     message: "Pre-wedding photo session rescheduled to 9:00 AM",
+    timestamp: Date.now() - 45 * 60 * 1000, // 45 minutes ago
     read: false
   },
   {
@@ -864,8 +870,10 @@ static demoUpdates = [
     eventId: "demo-1",
     type: "transport",
     icon: "ℹ️",
+    severity: "info",
     date: "12/12/2024",
     message: "Airport shuttle schedule confirmed",
+    timestamp: Date.now() - 6 * 60 * 60 * 1000,
     read: false
   },
 
@@ -875,8 +883,10 @@ static demoUpdates = [
     eventId: "demo-2",
     type: "conference",
     icon: "ℹ️",
+    severity: "info",
     date: "11/14/2024",
     message: "Keynote speaker changed to CTO of Tech India",
+    timestamp: Date.now() - 3600000,
     read: false
   },
   {
@@ -884,8 +894,10 @@ static demoUpdates = [
     eventId: "demo-2",
     type: "logistics",
     icon: "⚠️",
+    severity: "warning",
     date: "11/13/2024",
     message: "Registration desk moved to Gate 2",
+    timestamp: Date.now() - 7200000,
     read: false
   },
 
@@ -895,8 +907,10 @@ static demoUpdates = [
     eventId: "demo-3",
     type: "activity",
     icon: "ℹ️",
+    severity: "info",
     date: "10/09/2024",
     message: "Beach volleyball moved to 4:00 PM",
+    timestamp: Date.now() - 3600000,
     read: false
   },
   {
@@ -904,8 +918,10 @@ static demoUpdates = [
     eventId: "demo-3",
     type: "transport",
     icon: "✅",
+    severity: "success",
     date: "10/08/2024",
     message: "Airport pickup timings confirmed",
+    timestamp: Date.now() - 7200000,
     read: false
   }
 

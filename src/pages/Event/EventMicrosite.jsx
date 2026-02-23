@@ -419,7 +419,39 @@ const EventMicrosite = () => {
       </div>
     );
   }
+// =======================
+// CALCULATED OVERVIEW DATA
+// =======================
 
+// Format Date
+const formatDate = (date) => {
+  if (!date) return "";
+
+  const d = new Date(date);
+  return d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+// Total Guests
+const totalGuests = parseInt(event?.guestCount) || 0;
+
+// Total Event Days
+const start = new Date(event?.startDate);
+const end = new Date(event?.endDate);
+
+const totalDays =
+  start && end && !isNaN(start) && !isNaN(end)
+    ? Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
+    : 0;
+
+// Total Activities (for demo events)
+const totalActivities = schedule.reduce(
+  (sum, day) => sum + (day.activities?.length || 0),
+  0
+);
   if (!event) {
     return (
       <div style={{
@@ -540,7 +572,7 @@ const EventMicrosite = () => {
               </h1>
 
               <p style={{ opacity: 0.8, fontSize: "1.1rem", marginBottom: "8px" }}>
-                📍 {event.location} • 📅 {event.startDate} to {event.endDate}
+                📍 {event.location} • 📅 {formatDate(event.startDate)} to {formatDate(event.endDate)}
               </p>
 
               <p style={{ opacity: 0.6, fontSize: "1rem" }}>
@@ -559,7 +591,7 @@ const EventMicrosite = () => {
         textAlign: "center"
       }}>
         <h4 style={{ margin: "0 0 8px 0", fontSize: "2.5rem", color: "#667eea" }}>
-          {event.totalGuests || 0} {/* Display total guests */}
+          {totalGuests} {/* Display total guests */}
         </h4>
         <p style={{ margin: "0", opacity: "0.7", fontSize: "0.9rem" }}>Total Guests</p>
       </div>
@@ -574,7 +606,7 @@ const EventMicrosite = () => {
         textAlign: "center"
       }}>
         <h4 style={{ margin: "0 0 8px 0", fontSize: "2.5rem", color: "#764ba2" }}>
-          {event.eventDays || 0} {/* Display event days */}
+          {totalDays} {/* Display event days */}
         </h4>
         <p style={{ margin: "0", opacity: "0.7", fontSize: "0.9rem" }}>Event Days</p>
       </div>
@@ -590,7 +622,7 @@ const EventMicrosite = () => {
           textAlign: "center"
         }}>
           <h4 style={{ margin: "0 0 8px 0", fontSize: "2.5rem", color: "#ffbb33" }}>
-            {event.activities ? event.activities.length : 0} {/* Display number of activities for demo events */}
+            {totalActivities}{/* Display number of activities for demo events */}
           </h4>
           <p style={{ margin: "0", opacity: "0.7", fontSize: "0.9rem" }}>Activities</p>
         </div>

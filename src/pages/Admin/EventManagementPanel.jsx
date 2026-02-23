@@ -698,7 +698,7 @@ const EventManagementPanel = () => {
 
     // ✅ DEMO EVENT → remove locally
     if (eventId.startsWith("demo-")) {
-      setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      setEvents((prev) => prev.filter((e) => (e._id || e.id) !== eventId));
       showNotification("Demo event deleted (session only)", "info");
       return;
     }
@@ -880,7 +880,7 @@ const EventManagementPanel = () => {
   className="btn-action btn-delete"
   onClick={(e) => {
     e.stopPropagation(); // ✅ Prevent row click
-    handleDeleteEvent(event._id);
+    handleDeleteEvent(event._id|| event.id);
   }}
   title="Delete event"
 >

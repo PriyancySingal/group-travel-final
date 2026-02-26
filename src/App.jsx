@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthService from "./services/AuthService";
+import AdminEvents from "./pages/Admin/AdminEvents";
 
 // Pages
 import Login from "./pages/Login";
@@ -54,6 +55,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/admin/events"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <AdminEvents />
+    </ProtectedRoute>
+  }
+/>
           <Route
             path="/guests"
             element={

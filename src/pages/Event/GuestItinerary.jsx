@@ -1,8 +1,8 @@
-import React from "react";
+// import React from "react";
 import "./GuestItinerary.css";
 
 const GuestItinerary = ({ itinerary }) => {
-  if (!itinerary || !itinerary.personalItinerary) {
+  if (!itinerary || itinerary.length === 0) {
     return (
       <div className="guest-itinerary">
         <h2>👤 Your Personal Itinerary</h2>
@@ -15,11 +15,11 @@ const GuestItinerary = ({ itinerary }) => {
     <div className="guest-itinerary">
       <h2>👤 Your Personal Itinerary</h2>
       <div className="itinerary-timeline">
-        {itinerary.personalItinerary.map((item, index) => (
+        {itinerary.map((item, index) => (
           <div key={index} className="timeline-item">
             <div className="timeline-marker">
               <div className="marker-dot"></div>
-              {index < itinerary.personalItinerary.length - 1 && (
+              {index < itinerary.length - 1 && (
                 <div className="marker-line"></div>
               )}
             </div>
@@ -27,8 +27,8 @@ const GuestItinerary = ({ itinerary }) => {
               <h4 className="timeline-title">
                 <span className="day-label">Day {item.day}</span>
               </h4>
-              <p className="timeline-activity">{item.activity}</p>
-              {item.notes && <p className="timeline-notes">📝 {item.notes}</p>}
+              <p className="timeline-activity">{item.title}</p>
+              {item.note && <p className="timeline-notes">📝 {item.note}</p>}
             </div>
           </div>
         ))}

@@ -26,26 +26,32 @@ const Login = () => {
 
     try {
       // Validate test credentials first (for demo)
-      const testValidation = AuthService.validateTestCredentials(
-        username,
-        password
-      );
-      if (testValidation.valid) {
-        // Create user with admin role
-        AuthService.currentUser = {
-          username: username,
-          role: "admin",
-          token: `token_${Date.now()}`,
-          loginTime: new Date().toISOString(),
-          id: `user_${Date.now()}`,
-        };
-        AuthService.saveToStorage();
-        AuthService.notifyListeners();
+      const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-        setLoading(false);
-        navigate("/admin-dashboard");
-        return;
-      }
+  try {
+    const result = await AuthService.login(username, password);
+
+    if (result.success) {
+      const { token, user } = result;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("userId", user.id);
+
+      navigate(user.role === "admin" ? "/admin-dashboard" : "/");
+    } else {
+      setError(result.error || "Login failed");
+    }
+  } catch (err) {
+    setError("Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
       // Try API login
       const result = await AuthService.login(username, password);

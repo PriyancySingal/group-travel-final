@@ -39,60 +39,32 @@ class AuthService {
   }
 
   // Login with provided credentials
-  async login(username, password) {
-    try {
-      // Validate credentials against the API
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      });
+ async login(username, password) {
+  // 🔒 DEMO-ONLY LOGIN (API DISABLED)
 
-      if (!response.ok) {
-        throw new Error("Invalid credentials");
-      }
+  let role = "client";
 
-      const data = await response.json();
-
-      // Determine user role based on username or response
-      // For demo: using predefined credentials
-      let role = "client";
-      if (
-        username === "hackathontest" ||
-        data.role === "admin" ||
-        data.isAdmin
-      ) {
-        role = "admin";
-      }
-
-      this.currentUser = {
-        username: username,
-        role: role,
-        token: data.token || `token_${Date.now()}`,
-        loginTime: new Date().toISOString(),
-        id: data.userId || `user_${Date.now()}`,
-      };
-
-      this.saveToStorage();
-      this.notifyListeners();
-
-      return {
-        success: true,
-        user: this.currentUser,
-      };
-    } catch (error) {
-      console.error("Login error:", error);
-      return {
-        success: false,
-        error: error.message || "Login failed. Please try again.",
-      };
-    }
+  if (username === "hackathontest" && password === "Hackathon@12345") {
+    role = "admin";
   }
+
+  this.currentUser = {
+    username,
+    role,
+    token: `demo_token_${Date.now()}`,
+    loginTime: new Date().toISOString(),
+    id: role === "admin" ? "admin_1" : "client_1",
+  };
+
+  this.saveToStorage();
+  this.notifyListeners();
+
+  return {
+    success: true,
+    user: this.currentUser,
+  };
+}
+
 
   // Logout
   logout() {

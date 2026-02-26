@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import mongoose from "mongoose";
-
-const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  role: { type: String, enum: ["admin", "client"], default: "client" }
-});
-
-export const User = mongoose.model("User", userSchema);
-=======
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -61,7 +49,7 @@ const userSchema = new mongoose.Schema({
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
@@ -75,4 +63,3 @@ userSchema.methods.comparePassword = async function(enteredPassword) {
 const User = mongoose.model('User', userSchema);
 
 export default User;
->>>>>>> upstream/main

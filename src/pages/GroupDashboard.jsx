@@ -28,6 +28,7 @@ const GroupDashboard = () => {
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [splitType, setSplitType] = useState("equal");
   const [customAmounts, setCustomAmounts] = useState({});
+  const [bookingId, setBookingId] = useState(null);
 
   // Fetch pricing from API or use pre-calculated pricing
   const fetchPricing = useCallback(async () => {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateDynamicPricing } from "../services/PricingService";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 export default function Results() {
   const [hotels, setHotels] = useState([]);
@@ -47,7 +47,7 @@ export default function Results() {
   // Calculate preview pricing for a hotel
   const calculatePreviewPricing = (hotel) => {
     if (!hotel || !hotel.Price) return null;
-    
+
     return calculateDynamicPricing(hotel, {
       checkInDate: defaultCheckIn.toISOString().split('T')[0],
       checkOutDate: defaultCheckOut.toISOString().split('T')[0],
@@ -59,16 +59,16 @@ export default function Results() {
   const handleAddToGroupPlan = (hotel) => {
     // Calculate pricing before navigating
     const pricing = calculatePreviewPricing(hotel);
-    
+
     // Navigate with hotel and pricing data
-    navigate("/group-dashboard", { 
-      state: { 
+    navigate("/group-dashboard", {
+      state: {
         ...hotel,
         _pricing: pricing,
         _checkIn: defaultCheckIn.toISOString().split('T')[0],
         _checkOut: defaultCheckOut.toISOString().split('T')[0],
         _rooms: 1
-      } 
+      }
     });
   };
 
@@ -100,11 +100,11 @@ export default function Results() {
       {/* LIVE RESULTS */}
       {hotels.map((h, i) => {
         const preview = calculatePreviewPricing(h);
-        
+
         return (
-          <div 
-            key={i} 
-            className="glass-card" 
+          <div
+            key={i}
+            className="glass-card"
             style={{ marginTop: "16px" }}
             onMouseEnter={() => setPreviewHotel(h)}
             onMouseLeave={() => setPreviewHotel(null)}
@@ -117,12 +117,12 @@ export default function Results() {
                   ₹{h.Price?.TotalPrice?.toLocaleString('en-IN')} <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>(base price)</span>
                 </p>
               </div>
-              
+
               {/* Live Pricing Preview */}
               {preview && (
-                <div style={{ 
+                <div style={{
                   background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)",
-                  padding: "12px 16px", 
+                  padding: "12px 16px",
                   borderRadius: "10px",
                   border: "1px solid rgba(52, 211, 153, 0.3)",
                   minWidth: "180px"
@@ -145,8 +145,8 @@ export default function Results() {
 
             <button
               className="btn-primary"
-              style={{ 
-                marginTop: "12px", 
+              style={{
+                marginTop: "12px",
                 width: "100%",
                 background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
               }}
@@ -167,7 +167,7 @@ export default function Results() {
 
           {demoHotels.map((h, i) => {
             const preview = calculatePreviewPricing(h);
-            
+
             return (
               <div key={i} className="glass-card" style={{ marginTop: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -178,12 +178,12 @@ export default function Results() {
                       ₹{h.Price.TotalPrice.toLocaleString('en-IN')} <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>(base price)</span>
                     </p>
                   </div>
-                  
+
                   {/* Pricing Preview */}
                   {preview && (
-                    <div style={{ 
+                    <div style={{
                       background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)",
-                      padding: "12px 16px", 
+                      padding: "12px 16px",
                       borderRadius: "10px",
                       border: "1px solid rgba(52, 211, 153, 0.3)",
                       minWidth: "180px"
@@ -206,8 +206,8 @@ export default function Results() {
 
                 <button
                   className="btn-primary"
-                  style={{ 
-                    marginTop: "12px", 
+                  style={{
+                    marginTop: "12px",
                     width: "100%",
                     background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
                   }}
@@ -222,8 +222,8 @@ export default function Results() {
       )}
 
       {/* Info Box */}
-      <div className="glass-card" style={{ 
-        marginTop: "24px", 
+      <div className="glass-card" style={{
+        marginTop: "24px",
         background: "rgba(99, 102, 241, 0.1)",
         border: "1px solid rgba(99, 102, 241, 0.3)"
       }}>

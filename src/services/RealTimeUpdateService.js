@@ -15,7 +15,7 @@ class RealTimeUpdateService {
    */
   static initializeWebSocket(eventId, onUpdate) {
     // Use import.meta.env for Vite (not process.env)
-    const wsUrl = import.meta.env.VITE_WS_URL || `ws://localhost:5000/ws/events/${eventId}`;
+    const wsUrl = import.meta.env.VITE_WS_URL || `ws://localhost:5001/ws/events/${eventId}`;
 
     try {
       // Skip WebSocket connection if in development and URL looks invalid
@@ -75,7 +75,7 @@ class RealTimeUpdateService {
   static async pollEventUpdates(eventId, onUpdate) {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/events/${eventId}/updates?since=${this.getLastUpdateTime(eventId)}`
+        `${import.meta.env.VITE_API_URL || "http://localhost:5001"}/api/events/${eventId}/updates?since=${this.getLastUpdateTime(eventId)}`
       );
 
       if (!response.ok) throw new Error("Failed to fetch updates");

@@ -16,93 +16,27 @@ import alertRoutes from "./routes/alertRoutes.js";
 import insightRoutes from "./routes/insightRoutes.js";
 
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
 
 const app = express();
 
-// Middleware
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5174",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-};
-app.use(cors(corsOptions));
+/* ------------------ MIDDLEWARE ------------------ */
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
+
 app.use(express.json());
 
-// Health check
+/* ------------------ HEALTH CHECK ------------------ */
+
 app.get("/", (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <title>Group Travel Backend API</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
-          .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-          h1 { color: #333; }
-          .endpoint { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
-          .method { display: inline-block; padding: 5px 10px; border-radius: 3px; font-weight: bold; margin-right: 10px; }
-          .get { background: #61affe; color: white; }
-          .post { background: #49cc90; color: white; }
-          .patch { background: #fca130; color: white; }
-          .delete { background: #f93e3e; color: white; }
-          code { background: #e9ecef; padding: 2px 6px; border-radius: 3px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>🏨 Group Travel Backend API</h1>
-          <p>Welcome to the AI-Powered Group Travel Coordination Platform API</p>
-          
-          <h2>Available Endpoints:</h2>
-          
-          <h3>Authentication</h3>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/register</code> - Register new user</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/auth/login</code> - Login user</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/auth/me</code> - Get current user</div>
-          
-          <h3>Bookings</h3>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/bookings</code> - Get all bookings</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/bookings</code> - Create booking</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/bookings/:id</code> - Get booking</div>
-          <div class="endpoint"><span class="method patch">PATCH</span> <code>/api/bookings/:id/confirm-member</code> - Confirm member</div>
-          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/bookings/:id</code> - Delete booking</div>
-          
-          <h3>Guests</h3>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests</code> - Get all guests</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/guests</code> - Create guest</div>
-          <div class="endpoint"><span class="method patch">PUT</span> <code>/api/guests/:id</code> - Update guest</div>
-          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/guests/:id</code> - Delete guest</div>
-          
-          <h3>Pricing</h3>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/pricing/calculate</code> - Calculate pricing</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/pricing/config</code> - Get pricing config</div>
-          
-          <h3>Analytics</h3>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/analytics/dashboard</code> - Dashboard (Admin)</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/analytics/revenue</code> - Revenue (Admin)</div>
-          
-          <h3>AI Features</h3>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/insights</code> - Live AI insights from DB</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/guest-matching</code> - Guest matching</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/networking</code> - Networking recommendations</div>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/activities</code> - Activity suggestions</div>
-          
-          <h3>Alerts</h3>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/alerts</code> - Get alerts</div>
-          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/alerts/:id</code> - Delete alert</div>
-          
-          <h3>Hotel Search</h3>
-          <div class="endpoint"><span class="method post">POST</span> <code>/api/hotels</code> - Search hotels</div>
-        </div>
-      </body>
-    </html>
-  `);
+  res.send("🚀 Group Travel Backend Running");
 });
 
-// Mount routes
+/* ------------------ ROUTES ------------------ */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/guests", guestRoutes);
@@ -112,93 +46,103 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/insights", insightRoutes);
 
-// Hotel Search API (External TBO API)
+/* ------------------ HOTEL SEARCH (STABLE VERSION) ------------------ */
+
 app.post("/api/hotels", async (req, res) => {
   try {
-    const { CityId, CheckInDate, CheckOutDate, Rooms } = req.body;
+    const { CityCode, CheckIn, CheckOut, Adults } = req.body;
 
-    if (!CityId || !CheckInDate || !CheckOutDate || !Rooms) {
+    if (!CityCode || !CheckIn || !CheckOut) {
       return res.status(400).json({
-        error: "Missing required fields: CityId, CheckInDate, CheckOutDate, Rooms",
-        received: req.body
+        error: "Missing required fields"
       });
     }
 
-    console.log(`[Hotel Search] Searching: City=${CityId}, CheckIn=${CheckInDate}, CheckOut=${CheckOutDate}, Rooms=${Rooms}`);
+    const END_USER_IP = "106.221.238.172";
 
-    const tboResponse = await axios.post(
-      process.env.TBO_API_URL,
+    console.log("🔍 Searching hotels for city:", CityCode);
+
+    /* STEP 1: GET HOTEL CODES */
+    const hotelCodeResponse = await axios.post(
+      `${process.env.TBO_API_URL}/TBOHotelCodeList`,
       {
-        CityId: String(CityId),
-        CheckInDate: String(CheckInDate),
-        CheckOutDate: String(CheckOutDate),
-        Rooms: parseInt(Rooms),
-        SortBy: 1,
-        ShowResultCount: 50
+        CityCode: String(CityCode),
+        IsDetailedResponse: "false",
+        EndUserIp: END_USER_IP
       },
       {
         auth: {
           username: process.env.TBO_USERNAME,
           password: process.env.TBO_PASSWORD
-        },
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        timeout: 30000
+        }
       }
     );
 
-    console.log(`[Hotel Search Success] Found ${tboResponse.data?.HotelSearchResult?.HotelResults?.length || 0} hotels`);
-    res.json(tboResponse.data);
+    const hotelCodes = hotelCodeResponse.data?.Hotels
+      ?.slice(0, 30) // safe limit
+      .map(h => h.HotelCode)
+      .join(",");
+
+    if (!hotelCodes) {
+      return res.json({
+        Status: { Code: 200 },
+        HotelResult: []
+      });
+    }
+
+    /* STEP 2: SEARCH AVAILABILITY + PRICING */
+    const searchResponse = await axios.post(
+      `${process.env.TBO_API_URL}/Search`,
+      {
+        CheckIn,
+        CheckOut,
+        HotelCodes: hotelCodes,
+        GuestNationality: "IN",
+        PaxRooms: [
+          {
+            Adults: Adults || 1,
+            Children: 0,
+            ChildrenAges: []
+          }
+        ],
+        ResponseTime: 10,
+        IsDetailedResponse: false,
+        EndUserIp: END_USER_IP
+      },
+      {
+        auth: {
+          username: process.env.TBO_USERNAME,
+          password: process.env.TBO_PASSWORD
+        }
+      }
+    );
+
+    console.log("✅ Search Status:", searchResponse.data?.Status);
+
+    return res.json(searchResponse.data);
 
   } catch (error) {
-    const status = error.response?.status;
-    const errorPayload = {
-      message: error.message,
-      status,
-      data: error.response?.data
-    };
+    console.error("❌ Hotel Search Error:",
+      error.response?.data || error.message
+    );
 
-    // TBO can return 404 for unavailable/stale endpoint combinations.
-    // For demo stability, return empty results and let frontend fallback cards render.
-    if (status === 404) {
-      console.warn("[Hotel Search Warning] Upstream 404, returning empty result set", errorPayload);
-      return res.status(200).json({
-        success: false,
-        source: "tbo",
-        fallback: true,
-        message: "Live inventory unavailable at the moment. Showing fallback-ready empty response.",
-        HotelSearchResult: { HotelResults: [] }
-      });
-    }
-
-    console.error("[Hotel Search Error]", errorPayload);
-
-    if (error.response) {
-      return res.status(status || 500).json({
-        error: error.response.data?.Error || "TBO API Error",
-        message: error.response.data?.Message || error.message,
-        status
-      });
-    }
-
-    res.status(500).json({
+    return res.status(500).json({
       error: "Hotel search failed",
-      message: error.message
+      details: error.response?.data || error.message
     });
   }
 });
 
-// Error handling middleware
+/* ------------------ ERROR HANDLER ------------------ */
+
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
+/* ------------------ START SERVER ------------------ */
+
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  const activeMongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/group-travel';
-  console.log(`\n🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}`);
-  console.log(`🔗 MongoDB: ${activeMongoUri}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 });

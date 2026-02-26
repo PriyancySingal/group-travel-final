@@ -15,7 +15,9 @@ class RealTimeUpdateService {
    */
   static initializeWebSocket(eventId, onUpdate) {
     // Use import.meta.env for Vite (not process.env)
-    const wsUrl = import.meta.env.VITE_WS_URL || `ws://localhost:5001/ws/events/${eventId}`;
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+    const defaultWsUrl = apiUrl.replace("http://", "ws://").replace("https://", "wss://") + `/ws/events/${eventId}`;
+    const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl;
 
     try {
       // Skip WebSocket connection if in development and URL looks invalid

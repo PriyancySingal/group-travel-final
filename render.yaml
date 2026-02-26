@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: group-travel-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false  # Set this in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set this in Render dashboard
+      - key: TBO_API_URL
+        sync: false  # Set this in Render dashboard
+      - key: TBO_USERNAME
+        sync: false  # Set this in Render dashboard
+      - key: TBO_PASSWORD
+        sync: false  # Set this in Render dashboard
+      - key: FRONTEND_URL
+        sync: false  # Set this after frontend deployment
+    healthCheckPath: /
+    autoDeploy: true

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://group-travel-final.onrender.com";
 
 export default function Results() {
   const [hotels, setHotels] = useState([]);

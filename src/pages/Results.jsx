@@ -1,25 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { calculateDynamicPricing } from "../services/PricingService";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Results() {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [previewHotel, setPreviewHotel] = useState(null);
   const navigate = useNavigate();
+  const hasFetchedRef = useRef(false);
 
   // Default dates for pricing calculation
   const defaultCheckIn = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
   const defaultCheckOut = new Date(defaultCheckIn.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 nights
+  const checkInISO = defaultCheckIn.toISOString().split("T")[0];
+  const checkOutISO = defaultCheckOut.toISOString().split("T")[0];
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/hotels", {
+    // Avoid duplicate fetch in React StrictMode during development.
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
+    fetch(`${API_BASE_URL}/api/hotels`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         CityId: "110089",
-        CheckInDate: "2024-12-20",
-        CheckOutDate: "2024-12-22",
+        CheckInDate: checkInISO,
+        CheckOutDate: checkOutISO,
         Rooms: 1
       })
     })

@@ -15,7 +15,7 @@ const GuestProfileCard = ({ guest, onEdit, onDelete }) => {
           </button>
           <button
             className="btn-card btn-delete"
-            onClick={() => onDelete(guest.id)}
+            onClick={() => onDelete(guest._id)}
             title="Delete profile"
           >
             🗑️
@@ -24,83 +24,40 @@ const GuestProfileCard = ({ guest, onEdit, onDelete }) => {
       </div>
 
       <div className="guest-card-content">
-        {/* Contact Information */}
-        {(guest.email || guest.phone) && (
-          <div className="card-section">
-            <p>
-              {guest.email && (
-                <>
-                  📧 <a href={`mailto:${guest.email}`}>{guest.email}</a>
-                </>
-              )}
-            </p>
-            {guest.phone && <p>📱 {guest.phone}</p>}
-          </div>
-        )}
-
-        {/* Room Preferences */}
         <div className="card-section">
-          <p>
-            <strong>🏨 Room:</strong> {guest.roomPreference.charAt(0).toUpperCase() + guest.roomPreference.slice(1)}
-          </p>
+          <p><strong>🏙️ City:</strong> {guest.city || "N/A"}</p>
+          <p><strong>🎂 Age:</strong> {guest.age ?? "N/A"}</p>
+          <p><strong>💰 Budget:</strong> {guest.budget ?? "N/A"}</p>
           <div className="preference-tags">
-            {guest.quietRoom && <span className="tag">Quiet Room</span>}
-            {guest.highFloor && <span className="tag">High Floor</span>}
-            {guest.groundFloor && <span className="tag">Ground Floor</span>}
+            <span className="tag">{guest.preferredInteraction || "balanced"}</span>
+            <span className="tag">{guest.availability || "unspecified"}</span>
+            <span className="tag">{guest.energyLevel || "unknown"} energy</span>
+            {guest.isFirstTime && <span className="tag">First Time</span>}
           </div>
         </div>
 
-        {/* Dietary Requirements */}
-        {guest.dietaryRequirements.length > 0 && (
+        {guest.interests?.length > 0 && (
           <div className="card-section">
-            <p>
-              <strong>🍽️ Dietary:</strong>
-            </p>
+            <p><strong>🎯 Interests:</strong></p>
             <div className="preference-tags dietary">
-              {guest.dietaryRequirements.map(diet => (
-                <span key={diet} className="tag dietary-tag">
-                  {diet}
+              {guest.interests.map((interest) => (
+                <span key={interest} className="tag dietary-tag">
+                  {interest}
                 </span>
               ))}
             </div>
           </div>
         )}
 
-        {/* Special Needs */}
-        {(guest.specialNeeds.length > 0 || guest.mobilityAssistance || guest.wheelchairAccessible) && (
+        {guest.feedback && (
           <div className="card-section alert-section">
-            <p>
-              <strong>♿ Special Needs:</strong>
-            </p>
-            <div className="preference-tags">
-              {guest.wheelchairAccessible && (
-                <span className="tag special-need">Wheelchair Access</span>
-              )}
-              {guest.mobilityAssistance && (
-                <span className="tag special-need">Mobility Assist</span>
-              )}
-              {guest.specialNeeds.map(need => (
-                <span key={need} className="tag special-need">
-                  {need.split(" ")[0]}
-                </span>
-              ))}
-            </div>
+            <p className="guest-notes"><strong>💬 Feedback:</strong> {guest.feedback}</p>
           </div>
         )}
 
-        {/* Notes */}
-        {guest.notes && (
-          <div className="card-section">
-            <p className="guest-notes">
-              <strong>📝:</strong> {guest.notes}
-            </p>
-          </div>
-        )}
-
-        {/* Last Updated */}
         <div className="card-footer">
           <small>
-            Updated: {new Date(guest.updatedAt).toLocaleDateString()}
+            Updated: {guest.updatedAt ? new Date(guest.updatedAt).toLocaleString() : "N/A"}
           </small>
         </div>
       </div>

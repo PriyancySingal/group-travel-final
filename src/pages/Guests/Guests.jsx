@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import GuestProfileForm from "./GuestProfileForm";
 import GuestProfileCard from "./GuestProfileCard";
 import GuestAlerts from "./GuestAlerts";
 import GuestStats from "./GuestStats";
-import GuestPreferencesService from "./GuestPreferencesService";
+import { createGuest, deleteGuest, getGuests, getInsights, updateGuest } from "../../services/guestApi";
 import "./Guests.css";
+
+const createAlert = (type, title, message, guestName = "") => ({
+  id: Date.now() + Math.floor(Math.random() * 1000),
+  timestamp: new Date().toISOString(),
+  type,
+  title,
+  message,
+  guestName
+});
 
 const Guests = () => {
   const [guests, setGuests] = useState([]);
@@ -12,30 +21,37 @@ const Guests = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingGuest, setEditingGuest] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSpecialNeeds, setFilterSpecialNeeds] = useState(false);
   const [sortBy, setSortBy] = useState("name");
+  const [isLoading, setIsLoading] = useState(false);
+  const [insightsSyncedAt, setInsightsSyncedAt] = useState(null);
 
-  // Load guests on component mount
   useEffect(() => {
     loadGuests();
-    loadAlerts();
-
-    // Subscribe to real-time updates
-    const unsubscribe = GuestPreferencesService.subscribe((alert) => {
-      setAlerts(prev => [alert, ...prev]);
-    });
-
-    return unsubscribe;
   }, []);
 
-  const loadGuests = () => {
-    const savedGuests = GuestPreferencesService.getAllGuests();
-    setGuests(savedGuests);
+  const loadGuests = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getGuests();
+      setGuests(data);
+    } catch (error) {
+      console.error("Failed to load guests:", error);
+      setAlerts((prev) => [
+        createAlert("booking_change", "Load Failed", "Could not fetch guests from backend."),
+        ...prev
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const loadAlerts = () => {
-    const savedAlerts = GuestPreferencesService.getAllAlerts();
-    setAlerts(savedAlerts.slice(0, 10)); // Show last 10 alerts
+  const syncInsights = async () => {
+    try {
+      await getInsights();
+      setInsightsSyncedAt(new Date().toISOString());
+    } catch (error) {
+      console.error("Insights sync failed:", error);
+    }
   };
 
   const handleAddGuest = () => {
@@ -48,89 +64,135 @@ const Guests = () => {
     setShowForm(true);
   };
 
-  const handleDeleteGuest = (guestId) => {
-    if (window.confirm("Are you sure you want to remove this guest?")) {
-      GuestPreferencesService.deleteGuest(guestId);
-      loadGuests();
+  const handleDeleteGuest = async (guestId) => {
+    if (!window.confirm("Are you sure you want to remove this guest?")) return;
+
+    try {
+      await deleteGuest(guestId);
+      await loadGuests();
+      await syncInsights();
+      setAlerts((prev) => [
+        createAlert("preference_update", "Guest Deleted", "Guest was removed successfully."),
+        ...prev
+      ]);
+    } catch (error) {
+      console.error("Delete failed:", error);
     }
   };
 
-  const handleSaveGuest = (guestData) => {
-    GuestPreferencesService.saveGuest(guestData);
-    loadGuests();
-    loadAlerts();
-    setShowForm(false);
-  };
+  const handleSaveGuest = async (guestData) => {
+    const payload = {
+      name: guestData.name,
+      age: guestData.age,
+      city: guestData.city,
+      interests: guestData.interests || [],
+      budget: guestData.budget,
+      isFirstTime: Boolean(guestData.isFirstTime),
+      preferredInteraction: guestData.preferredInteraction || null,
+      availability: guestData.availability || null,
+      energyLevel: guestData.energyLevel || null,
+      feedback: guestData.feedback || ""
+    };
 
-  const handleCancelForm = () => {
-    setShowForm(false);
-    setEditingGuest(null);
+    try {
+      if (editingGuest?._id) {
+        await updateGuest(editingGuest._id, payload);
+        setAlerts((prev) => [
+          createAlert("preference_update", "Guest Updated", `${guestData.name} was updated`, guestData.name),
+          ...prev
+        ]);
+      } else {
+        await createGuest(payload);
+        setAlerts((prev) => [
+          createAlert("new_guest", "Guest Added", `${guestData.name} was added`, guestData.name),
+          ...prev
+        ]);
+      }
+      await loadGuests();
+      await syncInsights();
+      setShowForm(false);
+      setEditingGuest(null);
+    } catch (error) {
+      console.error("Save failed:", error);
+    }
   };
 
   const handleDismissAlert = (alertId) => {
-    GuestPreferencesService.dismissAlert(alertId);
-    loadAlerts();
-  };
-
-  const handleExportCSV = () => {
-    const csv = GuestPreferencesService.exportGuestsAsCSV();
-    const element = document.createElement("a");
-    element.setAttribute(
-      "href",
-      "data:text/csv;charset=utf-8," + encodeURIComponent(csv)
-    );
-    element.setAttribute(
-      "download",
-      `guest-list-${new Date().toISOString().split("T")[0]}.csv`
-    );
-    element.style.display = "none";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
-
-  const handleGenerateReport = () => {
-    const report = GuestPreferencesService.generateGuestReport();
-    console.log("Guest Report:", report);
-    alert(
-      `Report Generated:\n\nTotal Guests: ${report.totalGuests}\n\nView console for full details.`
-    );
+    setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
   };
 
   const handleClearAlerts = () => {
-    if (window.confirm("Clear all alerts?")) {
-      GuestPreferencesService.clearAllAlerts();
-      loadAlerts();
-    }
+    setAlerts([]);
   };
 
-  // Filter guests
-  let filteredGuests = guests;
+  const handleExportCSV = () => {
+    if (!guests.length) return;
+    const headers = [
+      "name",
+      "age",
+      "city",
+      "interests",
+      "budget",
+      "isFirstTime",
+      "preferredInteraction",
+      "availability",
+      "energyLevel",
+      "feedback"
+    ];
+    const rows = guests.map((guest) =>
+      [
+        guest.name || "",
+        guest.age ?? "",
+        guest.city || "",
+        (guest.interests || []).join(";"),
+        guest.budget ?? "",
+        guest.isFirstTime ? "Yes" : "No",
+        guest.preferredInteraction || "",
+        guest.availability || "",
+        guest.energyLevel || "",
+        guest.feedback || ""
+      ]
+        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+        .join(",")
+    );
+
+    const csv = [headers.join(","), ...rows].join("\n");
+    const anchor = document.createElement("a");
+    anchor.setAttribute("href", `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`);
+    anchor.setAttribute("download", `guest-list-${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  };
+
+  const handleGenerateReport = () => {
+    const report = {
+      totalGuests: guests.length,
+      firstTimeGuests: guests.filter((guest) => guest.isFirstTime).length,
+      cities: [...new Set(guests.map((guest) => guest.city).filter(Boolean))].length,
+      withFeedback: guests.filter((guest) => guest.feedback?.trim()).length
+    };
+    alert(
+      `Report Generated:\n\nTotal Guests: ${report.totalGuests}\nFirst-Time Guests: ${report.firstTimeGuests}\nCities: ${report.cities}\nWith Feedback: ${report.withFeedback}`
+    );
+  };
+
+  let filteredGuests = [...guests];
 
   if (searchTerm) {
-    filteredGuests = filteredGuests.filter(
-      g =>
-        g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        g.email.toLowerCase().includes(searchTerm.toLowerCase())
+    filteredGuests = filteredGuests.filter((guest) =>
+      `${guest.name || ""} ${guest.city || ""}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
     );
   }
 
-  if (filterSpecialNeeds) {
-    filteredGuests = filteredGuests.filter(
-      g => g.specialNeeds.length > 0 || g.wheelchairAccessible || g.mobilityAssistance
-    );
-  }
-
-  // Sort guests
   if (sortBy === "name") {
-    filteredGuests.sort((a, b) => a.name.localeCompare(b.name));
+    filteredGuests.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   } else if (sortBy === "recent") {
     filteredGuests.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-  } else if (sortBy === "specialNeeds") {
-    filteredGuests.sort(
-      (a, b) => (b.specialNeeds.length + (b.mobilityAssistance ? 1 : 0)) -
-        (a.specialNeeds.length + (a.mobilityAssistance ? 1 : 0))
-    );
+  } else if (sortBy === "firstTime") {
+    filteredGuests.sort((a, b) => Number(b.isFirstTime) - Number(a.isFirstTime));
   }
 
   return (
@@ -138,29 +200,29 @@ const Guests = () => {
       <div className="guests-header">
         <div className="header-content">
           <h1>👥 Guest Profiles & Preferences</h1>
-          <p>Manage guest information, dietary requirements, and special needs</p>
+          <p>MongoDB-backed guest management for live AI insights</p>
+          {insightsSyncedAt && (
+            <p style={{ marginTop: 8, opacity: 0.8 }}>
+              Last insight sync: {new Date(insightsSyncedAt).toLocaleTimeString()}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Real-Time Alerts Section */}
       {alerts.length > 0 && (
         <div className="alerts-section">
           <div className="alerts-header">
-            <h2>🔔 Real-Time Updates & Alerts</h2>
-            {alerts.length > 0 && (
-              <button className="btn-clear-alerts" onClick={handleClearAlerts}>
-                Clear All
-              </button>
-            )}
+            <h2>🔔 Updates</h2>
+            <button className="btn-clear-alerts" onClick={handleClearAlerts}>
+              Clear All
+            </button>
           </div>
           <GuestAlerts alerts={alerts} onDismiss={handleDismissAlert} />
         </div>
       )}
 
-      {/* Stats Section */}
       {guests.length > 0 && <GuestStats guests={guests} />}
 
-      {/* Controls Section */}
       <div className="guests-controls">
         <button className="btn-primary btn-add" onClick={handleAddGuest}>
           ➕ Add New Guest
@@ -169,30 +231,21 @@ const Guests = () => {
         <div className="controls-group">
           <input
             type="text"
-            placeholder="🔍 Search by name or email..."
+            placeholder="🔍 Search by name or city..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(event) => setSearchTerm(event.target.value)}
             className="search-input"
           />
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(event) => setSortBy(event.target.value)}
             className="sort-select"
           >
             <option value="name">📌 Sort by Name</option>
             <option value="recent">🕐 Sort by Recent</option>
-            <option value="specialNeeds">♿ Sort by Special Needs</option>
+            <option value="firstTime">🆕 Sort by First-Time</option>
           </select>
-
-          <label className="filter-checkbox">
-            <input
-              type="checkbox"
-              checked={filterSpecialNeeds}
-              onChange={(e) => setFilterSpecialNeeds(e.target.checked)}
-            />
-            🔍 Show only Special Needs
-          </label>
         </div>
 
         <div className="action-buttons">
@@ -205,24 +258,18 @@ const Guests = () => {
         </div>
       </div>
 
-      {/* Guest List */}
       <div className="guests-list">
-        {filteredGuests.length === 0 ? (
+        {isLoading ? (
+          <div className="empty-state">
+            <p className="empty-title">Loading guests...</p>
+          </div>
+        ) : filteredGuests.length === 0 ? (
           <div className="empty-state">
             <p className="empty-title">No guests yet</p>
-            <p className="empty-subtitle">
-              {guests.length === 0
-                ? "Start by adding your first guest profile"
-                : "No guests match your search criteria"}
-            </p>
-            {guests.length === 0 && (
-              <button
-                className="btn-primary btn-empty"
-                onClick={handleAddGuest}
-              >
-                Add First Guest
-              </button>
-            )}
+            <p className="empty-subtitle">Start by adding your first guest profile</p>
+            <button className="btn-primary btn-empty" onClick={handleAddGuest}>
+              Add First Guest
+            </button>
           </div>
         ) : (
           <>
@@ -230,9 +277,9 @@ const Guests = () => {
               Showing {filteredGuests.length} of {guests.length} guests
             </p>
             <div className="guests-grid">
-              {filteredGuests.map(guest => (
+              {filteredGuests.map((guest) => (
                 <GuestProfileCard
-                  key={guest.id}
+                  key={guest._id}
                   guest={guest}
                   onEdit={handleEditGuest}
                   onDelete={handleDeleteGuest}
@@ -243,12 +290,14 @@ const Guests = () => {
         )}
       </div>
 
-      {/* Guest Profile Form Modal */}
       {showForm && (
         <GuestProfileForm
           guest={editingGuest}
           onSave={handleSaveGuest}
-          onCancel={handleCancelForm}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingGuest(null);
+          }}
         />
       )}
     </div>

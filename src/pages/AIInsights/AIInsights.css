@@ -92,6 +92,68 @@
   font-weight: 600;
 }
 
+.mvp-summary {
+  max-width: 1400px;
+  margin: 0 auto 28px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.mvp-summary-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(140deg, rgba(59, 130, 246, 0.14), rgba(15, 23, 42, 0.7));
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mvp-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.source-switch {
+  max-width: 1400px;
+  margin: 0 auto 14px;
+  padding: 0 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.source-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.source-btn.active {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border-color: rgba(34, 197, 94, 0.8);
+}
+
+.mvp-value {
+  font-size: 21px;
+  color: #f8fafc;
+  font-weight: 800;
+}
+
+.mvp-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
 /* Tabs Navigation */
 .ai-tabs {
   max-width: 1400px;
@@ -529,6 +591,15 @@
 .participant-tag.more {
   background: rgba(59, 130, 246, 0.2);
   border-color: rgba(59, 130, 246, 0.4);
+}
+
+.empty-state {
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .btn-schedule-session {

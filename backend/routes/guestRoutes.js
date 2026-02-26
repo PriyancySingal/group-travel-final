@@ -1,20 +1,14 @@
-import express from 'express';
-import { body, param, validationResult } from 'express-validator';
-import { protect } from '../middleware/authMiddleware.js';
-import { authorize } from '../middleware/roleMiddleware.js';
+import express from "express";
+import { param, validationResult } from "express-validator";
 import {
   createGuest,
   getGuests,
-  getGuest,
   updateGuest,
-  deleteGuest,
-  getDietaryAnalytics,
-  getSpecialNeedsAnalytics
-} from '../controllers/guestController.js';
+  deleteGuest
+} from "../controllers/guestController.js";
 
 const router = express.Router();
 
-// Validation middleware
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -23,37 +17,19 @@ const validate = (req, res, next) => {
   next();
 };
 
-// Get all guests (Admin sees all, client sees own)
-router.get('/', protect, getGuests);
-
-// Get dietary analytics
-router.get('/analytics/dietary', protect, authorize('admin'), getDietaryAnalytics);
-
-// Get special needs analytics
-router.get('/analytics/special-needs', protect, authorize('admin'), getSpecialNeedsAnalytics);
-
-// Get single guest
-router.get('/:id', protect, [
-  param('id').isMongoId().withMessage('Invalid guest ID')
-], validate, getGuest);
-
-// Create guest
-router.post('/', protect, [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('eventId').optional().isMongoId().withMessage('Invalid event ID')
-], validate, createGuest);
-
-// Update guest
-router.put('/:id', protect, [
-  param('id').isMongoId().withMessage('Invalid guest ID'),
-  body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-  body('email').optional().isEmail().withMessage('Valid email is required')
-], validate, updateGuest);
-
-// Delete guest
-router.delete('/:id', protect, authorize('admin'), [
-  param('id').isMongoId().withMessage('Invalid guest ID')
-], validate, deleteGuest);
+router.post("/", createGuest);
+router.get("/", getGuests);
+router.put(
+  "/:id",
+  [param("id").isMongoId().withMessage("Invalid guest ID")],
+  validate,
+  updateGuest
+);
+router.delete(
+  "/:id",
+  [param("id").isMongoId().withMessage("Invalid guest ID")],
+  validate,
+  deleteGuest
+);
 
 export default router;

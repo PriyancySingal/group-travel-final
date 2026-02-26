@@ -1,26 +1,26 @@
 import "./GuestStats.css";
 
 const GuestStats = ({ guests }) => {
-  const getDietarySummary = () => {
+  const getInterestSummary = () => {
     const summary = {};
-    guests.forEach(guest => {
-      guest.dietaryRequirements.forEach(diet => {
-        summary[diet] = (summary[diet] || 0) + 1;
+    guests.forEach((guest) => {
+      (guest.interests || []).forEach((interest) => {
+        summary[interest] = (summary[interest] || 0) + 1;
       });
     });
     return summary;
   };
 
-  const getSpecialNeedsSummary = () => {
+  const getProfileSummary = () => {
     return {
-      wheelchairAccessible: guests.filter(g => g.wheelchairAccessible).length,
-      mobilityAssistance: guests.filter(g => g.mobilityAssistance).length,
-      specialNeeds: guests.filter(g => g.specialNeeds.length > 0).length
+      firstTime: guests.filter((guest) => guest.isFirstTime).length,
+      withFeedback: guests.filter((guest) => guest.feedback?.trim()).length,
+      withInterests: guests.filter((guest) => (guest.interests || []).length > 0).length
     };
   };
 
-  const dietarySummary = getDietarySummary();
-  const specialNeeds = getSpecialNeedsSummary();
+  const interestSummary = getInterestSummary();
+  const profileSummary = getProfileSummary();
 
   return (
     <div className="guest-stats-container">
@@ -32,14 +32,13 @@ const GuestStats = ({ guests }) => {
         <div className="stat-label">Total Guests</div>
       </div>
 
-      {/* Dietary Requirements */}
-      {Object.keys(dietarySummary).length > 0 && (
+      {Object.keys(interestSummary).length > 0 && (
         <div className="stat-section">
-          <h3>🍽️ Dietary Requirements</h3>
+          <h3>🎯 Interests</h3>
           <div className="stat-grid">
-            {Object.entries(dietarySummary).map(([diet, count]) => (
-              <div key={diet} className="stat-item">
-                <span className="stat-label">{diet}</span>
+            {Object.entries(interestSummary).map(([interest, count]) => (
+              <div key={interest} className="stat-item">
+                <span className="stat-label">{interest}</span>
                 <span className="stat-number">{count}</span>
               </div>
             ))}
@@ -47,27 +46,26 @@ const GuestStats = ({ guests }) => {
         </div>
       )}
 
-      {/* Special Needs */}
-      {(specialNeeds.wheelchairAccessible > 0 || specialNeeds.mobilityAssistance > 0 || specialNeeds.specialNeeds > 0) && (
+      {(profileSummary.firstTime > 0 || profileSummary.withFeedback > 0 || profileSummary.withInterests > 0) && (
         <div className="stat-section needs-section">
-          <h3>♿ Special Needs & Accessibility</h3>
+          <h3>🧠 Guest Signals</h3>
           <div className="stat-grid">
-            {specialNeeds.wheelchairAccessible > 0 && (
+            {profileSummary.firstTime > 0 && (
               <div className="stat-item needs-item">
-                <span className="stat-label">Wheelchair Access</span>
-                <span className="stat-number">{specialNeeds.wheelchairAccessible}</span>
+                <span className="stat-label">First-time Guests</span>
+                <span className="stat-number">{profileSummary.firstTime}</span>
               </div>
             )}
-            {specialNeeds.mobilityAssistance > 0 && (
+            {profileSummary.withFeedback > 0 && (
               <div className="stat-item needs-item">
-                <span className="stat-label">Mobility Assistance</span>
-                <span className="stat-number">{specialNeeds.mobilityAssistance}</span>
+                <span className="stat-label">Guests with Feedback</span>
+                <span className="stat-number">{profileSummary.withFeedback}</span>
               </div>
             )}
-            {specialNeeds.specialNeeds > 0 && (
+            {profileSummary.withInterests > 0 && (
               <div className="stat-item needs-item">
-                <span className="stat-label">Other Special Needs</span>
-                <span className="stat-number">{specialNeeds.specialNeeds}</span>
+                <span className="stat-label">Guests with Interests</span>
+                <span className="stat-number">{profileSummary.withInterests}</span>
               </div>
             )}
           </div>

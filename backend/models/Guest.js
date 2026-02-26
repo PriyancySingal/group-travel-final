@@ -1,67 +1,83 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const guestSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+const GuestSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    age: Number,
+    city: String,
+    interests: [String],
+    budget: Number,
+    isFirstTime: Boolean,
+    preferredInteraction: String,
+    availability: String,
+    energyLevel: String,
+    feedback: String,
+    status: {
+      type: String,
+      enum: ["invited", "confirmed", "declined", "attended"],
+      default: "invited"
+    },
+    professionalInterests: [String],
+    personalityTraits: [String],
+    socialBehavior: String,
+    socialMediaActivity: {
+      type: Number,
+      default: 0
+    },
+    eventAttendanceCount: {
+      type: Number,
+      default: 0
+    },
+    personalityType: {
+      type: String,
+      enum: ["introvert", "extravert", "ambivert"],
+      default: "ambivert"
+    },
+    openToNetworking: {
+      type: Boolean,
+      default: true
+    },
+    groupActivityPreference: {
+      type: String,
+      enum: ["low", "moderate", "high"],
+      default: "moderate"
+    },
+    communicationStyle: {
+      type: String,
+      enum: ["formal", "casual", "balanced"],
+      default: "balanced"
+    },
+    professionalIndustry: String,
+    hobbyInterests: [String],
+    stressLevel: {
+      type: String,
+      enum: ["low", "normal", "high"],
+      default: "normal"
+    },
+    engagementScore: {
+      type: Number,
+      default: 50
+    },
+    recentSocialActivity: String,
+    socialPosts: [String],
+    notes: String,
+    appFeedbackHistory: [
+      {
+        text: String,
+        rating: Number,
+        topic: String,
+        timestamp: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ]
   },
-  name: {
-    type: String,
-    required: [true, 'Please provide guest name'],
-    trim: true
-  },
-  email: {
-    type: String,
-    required: [true, 'Please provide guest email'],
-    lowercase: true
-  },
-  phone: {
-    type: String,
-    trim: true
-  },
-  dietaryRequirements: [{
-    type: String,
-    enum: ['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'nut-free', 'halal', 'kosher', 'other']
-  }],
-  specialNeeds: [String],
-  wheelchairAccessible: {
-    type: Boolean,
-    default: false
-  },
-  mobilityAssistance: {
-    type: Boolean,
-    default: false
-  },
-  eventId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event'
-  },
-  bookingId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Booking'
-  },
-  interests: [String],
-  allergies: [String],
-  emergencyContact: {
-    name: String,
-    phone: String,
-    relationship: String
-  },
-  notes: String,
-  status: {
-    type: String,
-    enum: ['invited', 'confirmed', 'declined', 'attended'],
-    default: 'invited'
-  }
-}, {
-  timestamps: true
-});
+  { timestamps: true }
+);
 
-// Index for faster queries
-guestSchema.index({ email: 1 });
-guestSchema.index({ eventId: 1 });
-guestSchema.index({ bookingId: 1 });
-
-const Guest = mongoose.model('Guest', guestSchema);
-
-export default Guest;
+export default mongoose.model("Guest", GuestSchema);

@@ -13,6 +13,7 @@ import pricingRoutes from "./routes/pricingRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import alertRoutes from "./routes/alertRoutes.js";
+import insightRoutes from "./routes/insightRoutes.js";
 
 dotenv.config();
 
@@ -66,8 +67,8 @@ app.get("/", (req, res) => {
           <h3>Guests</h3>
           <div class="endpoint"><span class="method get">GET</span> <code>/api/guests</code> - Get all guests</div>
           <div class="endpoint"><span class="method post">POST</span> <code>/api/guests</code> - Create guest</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests/analytics/dietary</code> - Dietary analytics</div>
-          <div class="endpoint"><span class="method get">GET</span> <code>/api/guests/analytics/special-needs</code> - Special needs analytics</div>
+          <div class="endpoint"><span class="method patch">PUT</span> <code>/api/guests/:id</code> - Update guest</div>
+          <div class="endpoint"><span class="method delete">DELETE</span> <code>/api/guests/:id</code> - Delete guest</div>
           
           <h3>Pricing</h3>
           <div class="endpoint"><span class="method post">POST</span> <code>/api/pricing/calculate</code> - Calculate pricing</div>
@@ -78,6 +79,7 @@ app.get("/", (req, res) => {
           <div class="endpoint"><span class="method get">GET</span> <code>/api/analytics/revenue</code> - Revenue (Admin)</div>
           
           <h3>AI Features</h3>
+          <div class="endpoint"><span class="method get">GET</span> <code>/api/insights</code> - Live AI insights from DB</div>
           <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/guest-matching</code> - Guest matching</div>
           <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/networking</code> - Networking recommendations</div>
           <div class="endpoint"><span class="method post">POST</span> <code>/api/ai/activities</code> - Activity suggestions</div>
@@ -102,6 +104,7 @@ app.use("/api/pricing", pricingRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/alerts", alertRoutes);
+app.use("/api/insights", insightRoutes);
 
 // Hotel Search API (External TBO API)
 app.post("/api/hotels", async (req, res) => {
@@ -144,17 +147,33 @@ app.post("/api/hotels", async (req, res) => {
     res.json(tboResponse.data);
 
   } catch (error) {
-    console.error("[Hotel Search Error]", {
+    const status = error.response?.status;
+    const errorPayload = {
       message: error.message,
-      status: error.response?.status,
+      status,
       data: error.response?.data
-    });
+    };
+
+    // TBO can return 404 for unavailable/stale endpoint combinations.
+    // For demo stability, return empty results and let frontend fallback cards render.
+    if (status === 404) {
+      console.warn("[Hotel Search Warning] Upstream 404, returning empty result set", errorPayload);
+      return res.status(200).json({
+        success: false,
+        source: "tbo",
+        fallback: true,
+        message: "Live inventory unavailable at the moment. Showing fallback-ready empty response.",
+        HotelSearchResult: { HotelResults: [] }
+      });
+    }
+
+    console.error("[Hotel Search Error]", errorPayload);
 
     if (error.response) {
-      return res.status(error.response.status || 500).json({
+      return res.status(status || 500).json({
         error: error.response.data?.Error || "TBO API Error",
         message: error.response.data?.Message || error.message,
-        status: error.response.status
+        status
       });
     }
 
@@ -172,7 +191,8 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
+  const activeMongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/group-travel';
   console.log(`\n🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
   console.log(`📡 API available at http://localhost:${PORT}`);
-  console.log(`🔗 MongoDB: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/group-travel'}`);
+  console.log(`🔗 MongoDB: ${activeMongoUri}`);
 });

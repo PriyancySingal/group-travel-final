@@ -2,6 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { calculateDynamicPricing } from "../services/PricingService";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const GroupDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,7 +48,7 @@ const GroupDashboard = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/pricing/calculate", {
+      const response = await fetch(`${API_BASE_URL}/api/pricing/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

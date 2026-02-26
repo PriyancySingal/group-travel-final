@@ -10,8 +10,8 @@ const calculateSimilarity = (guest1, guest2) => {
   const diet1 = guest1.dietaryRequirements || [];
   const diet2 = guest2.dietaryRequirements || [];
   const dietMatch = diet1.filter(d => diet2.includes(d)).length;
-  const dietSimilarity = diet1.length + diet2.length > 0 
-    ? (dietMatch * 2) / (diet1.length + diet2.length) 
+  const dietSimilarity = diet1.length + diet2.length > 0
+    ? (dietMatch * 2) / (diet1.length + diet2.length)
     : 1;
   score += dietSimilarity * 0.4;
   factors += 0.4;
@@ -20,8 +20,8 @@ const calculateSimilarity = (guest1, guest2) => {
   const int1 = guest1.interests || [];
   const int2 = guest2.interests || [];
   const intMatch = int1.filter(i => int2.includes(i)).length;
-  const intSimilarity = int1.length + int2.length > 0 
-    ? (intMatch * 2) / (int1.length + int2.length) 
+  const intSimilarity = int1.length + int2.length > 0
+    ? (intMatch * 2) / (int1.length + int2.length)
     : 1;
   score += intSimilarity * 0.4;
   factors += 0.4;
@@ -69,7 +69,7 @@ export const guestMatching = asyncHandler(async (req, res) => {
       if (usedGuests.has(guests[j]._id.toString())) continue;
 
       const score = calculateSimilarity(guests[i], guests[j]);
-      
+
       if (score > bestMatch.score) {
         bestMatch = {
           guest: guests[j],
@@ -245,8 +245,8 @@ export const getActivitySuggestions = asyncHandler(async (req, res) => {
       name: `${interest.charAt(0).toUpperCase() + interest.slice(1)} Session`,
       type: 'interest-based',
       expectedAttendance: count,
-      accessibility: wheelchairCount > 0 || mobilityCount > 0 
-        ? 'May need accessibility accommodations' 
+      accessibility: wheelchairCount > 0 || mobilityCount > 0
+        ? 'May need accessibility accommodations'
         : 'Standard accessibility',
       dietaryConsiderations: Object.keys(allDietary)
     });
@@ -258,8 +258,8 @@ export const getActivitySuggestions = asyncHandler(async (req, res) => {
     type: 'general',
     expectedAttendance: guests.length,
     dietaryConsiderations: Object.keys(allDietary),
-    accessibility: wheelchairCount > 0 || mobilityCount > 0 
-      ? 'Wheelchair accessible venue required' 
+    accessibility: wheelchairCount > 0 || mobilityCount > 0
+      ? 'Wheelchair accessible venue required'
       : 'Standard accessibility'
   });
 

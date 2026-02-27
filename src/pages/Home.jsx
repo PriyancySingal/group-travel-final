@@ -63,6 +63,40 @@ const Home = () => {
             <SearchForm />
           </div>
 
+          {/* Advanced Search Link */}
+          <div style={{
+            textAlign: "center",
+            marginTop: "20px",
+            animation: "fadeInUp 1.3s ease forwards"
+          }}>
+            <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px", marginBottom: "12px" }}>
+              Want advanced filters and better real-time experience?
+            </p>
+            <button
+              onClick={() => navigate("/hotel-search")}
+              style={{
+                background: "rgba(56, 189, 248, 0.15)",
+                border: "1px solid rgba(56, 189, 248, 0.4)",
+                color: "#38bdf8",
+                padding: "10px 24px",
+                borderRadius: "10px",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.3s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(56, 189, 248, 0.25)";
+                e.target.style.borderColor = "#38bdf8";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(56, 189, 248, 0.15)";
+              }}
+            >
+              Try Advanced Hotel Search ✨
+            </button>
+          </div>
+
           {/* Feature Pills */}
           <div style={{
             display: "flex",

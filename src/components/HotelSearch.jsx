@@ -1,33 +1,46 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 
-const SearchForm = () => {
-  const navigate = useNavigate();
+const HotelSearch = ({ onSearch }) => {
   const [formData, setFormData] = useState({
-    destination: "",
+    city: "",
     checkInDate: "",
     checkOutDate: "",
     rooms: 1,
     adults: 1,
-    children: 0
+    children: 0,
+    eventType: "MICE"
   });
 
+  const [cityDropdown, setCityDropdown] = useState(false);
+  const [citySearch, setCitySearch] = useState("");
   const [nights, setNights] = useState(0);
   const [errors, setErrors] = useState({});
+  const cityInputRef = useRef(null);
 
-  // Popular cities
+  // Simulated city data with IDs (in real app, fetch from API)
   const cities = [
-    { name: "Delhi" },
-    { name: "Mumbai" },
-    { name: "Bangalore" },
-    { name: "Hyderabad" },
-    { name: "Chennai" },
-    { name: "Kolkata" },
-    { name: "Pune" },
-    { name: "Goa" },
-    { name: "Jaipur" },
-    { name: "Kochi" }
+    { id: "del", name: "Delhi", country: "India", airport: "DEL" },
+    { id: "mum", name: "Mumbai", country: "India", airport: "BOM" },
+    { id: "bang", name: "Bangalore", country: "India", airport: "BLR" },
+    { id: "hyd", name: "Hyderabad", country: "India", airport: "HYD" },
+    { id: "che", name: "Chennai", country: "India", airport: "MAA" },
+    { id: "kol", name: "Kolkata", country: "India", airport: "CCU" },
+    { id: "pune", name: "Pune", country: "India", airport: "PNQ" },
+    { id: "jaipur", name: "Jaipur", country: "India", airport: "JAI" },
+    { id: "kochi", name: "Kochi", country: "India", airport: "COK" },
+    { id: "goa", name: "Goa", country: "India", airport: "GOI" },
+    { id: "lnd", name: "London", country: "UK", airport: "LHR" },
+    { id: "par", name: "Paris", country: "France", airport: "CDG" },
+    { id: "bng", name: "Bangkok", country: "Thailand", airport: "BKK" },
+    { id: "sg", name: "Singapore", country: "Singapore", airport: "SIN" },
+    { id: "dubai", name: "Dubai", country: "UAE", airport: "DXB" }
   ];
+
+  const filteredCities = cities.filter(c =>
+    c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
+    c.country.toLowerCase().includes(citySearch.toLowerCase())
+  );
 
   // Calculate nights
   useEffect(() => {
@@ -44,8 +57,16 @@ const SearchForm = () => {
     return today.toISOString().split("T")[0];
   };
 
+  const handleCitySelect = (city) => {
+    setFormData({ ...formData, city: city.name, cityId: city.id });
+    setCityDropdown(false);
+    setCitySearch("");
+  };
+
   const handleDateChange = (type, value) => {
     const newFormData = { ...formData, [type]: value };
+
+    // Validation
     const newErrors = { ...errors };
 
     if (type === "checkInDate") {
@@ -77,7 +98,7 @@ const SearchForm = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.destination) newErrors.destination = "Select a city";
+    if (!formData.city) newErrors.city = "Select a city";
     if (!formData.checkInDate) newErrors.checkInDate = "Select check-in date";
     if (!formData.checkOutDate) newErrors.checkOutDate = "Select check-out date";
     if (formData.checkInDate && formData.checkInDate < getTodayDate()) {
@@ -94,18 +115,7 @@ const SearchForm = () => {
 
   const handleSearch = () => {
     if (validateForm()) {
-      navigate("/results", {
-        state: {
-          destination: formData.destination,
-          checkInDate: formData.checkInDate,
-          checkOutDate: formData.checkOutDate,
-          rooms: formData.rooms,
-          guests: formData.adults + formData.children,
-          adults: formData.adults,
-          children: formData.children,
-          nights: nights
-        }
-      });
+      onSearch(formData);
     }
   };
 
@@ -119,7 +129,7 @@ const SearchForm = () => {
       border: "1px solid rgba(255, 255, 255, 0.15)",
       borderRadius: "28px",
       padding: "40px",
-      maxWidth: "1100px",
+      maxWidth: "1200px",
       margin: "0 auto",
       boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)"
     }}>
@@ -137,20 +147,20 @@ const SearchForm = () => {
           🔍 Find Your Perfect Hotel
         </h2>
         <p style={{ color: "#cbd5e1", fontSize: "14px" }}>
-          Real-time availability with TBO API integration
+          Real-time availability across 500+ cities
         </p>
       </div>
 
       {/* Main Search Grid */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
         gap: "20px",
         marginBottom: "25px",
         alignItems: "flex-start"
       }}>
-        {/* Destination */}
-        <div>
+        {/* City Selector */}
+        <div style={{ position: "relative" }}>
           <label style={{
             display: "block",
             marginBottom: "10px",
@@ -162,41 +172,94 @@ const SearchForm = () => {
           }}>
             📍 Destination
           </label>
-          <select
-            value={formData.destination}
-            onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              borderRadius: "14px",
-              border: `2px solid ${errors.destination ? "#ef4444" : "rgba(255, 255, 255, 0.15)"}`,
-              background: "rgba(255, 255, 255, 0.08)",
-              color: "white",
-              fontSize: "14px",
-              transition: "all 0.3s ease",
-              fontFamily: "Poppins, sans-serif",
-              cursor: "pointer",
-              colorScheme: "dark"
-            }}
-            onFocus={(e) => {
-              e.target.style.background = "rgba(255, 255, 255, 0.12)";
-              e.target.style.borderColor = "#38bdf8";
-            }}
-            onBlur={(e) => {
-              e.target.style.background = "rgba(255, 255, 255, 0.08)";
-            }}
-          >
-            <option value="">Select city...</option>
-            {cities.map((city) => (
-              <option key={city.name} value={city.name} style={{
-                background: "#0a0e27",
-                color: "white"
+          <div style={{ position: "relative" }}>
+            <input
+              ref={cityInputRef}
+              type="text"
+              placeholder="Search city..."
+              value={citySearch || formData.city}
+              onChange={(e) => {
+                setCitySearch(e.target.value);
+                setCityDropdown(true);
+              }}
+              onFocus={(e) => {
+                setCityDropdown(true);
+                e.target.style.background = "rgba(255, 255, 255, 0.12)";
+                e.target.style.borderColor = "#38bdf8";
+              }}
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                borderRadius: "14px",
+                border: `2px solid ${errors.city ? "#ef4444" : "rgba(255, 255, 255, 0.15)"}`,
+                background: "rgba(255, 255, 255, 0.08)",
+                color: "white",
+                fontSize: "14px",
+                transition: "all 0.3s ease",
+                fontFamily: "Poppins, sans-serif",
+                cursor: "text"
+              }}
+              onBlur={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.08)";
+                setTimeout(() => setCityDropdown(false), 200);
+              }}
+            />
+
+            {/* City Dropdown */}
+            {cityDropdown && filteredCities.length > 0 && (
+              <div style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                marginTop: "8px",
+                background: "rgba(15, 23, 41, 0.95)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(139, 92, 246, 0.3)",
+                borderRadius: "14px",
+                maxHeight: "280px",
+                overflowY: "auto",
+                zIndex: 100,
+                boxShadow: "0 10px 40px rgba(0, 0, 0, 0.4)"
               }}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-          {errors.destination && <p style={{ color: "#ef4444", fontSize: "12px", marginTop: "6px" }}>{errors.destination}</p>}
+                {filteredCities.map((city) => (
+                  <div
+                    key={city.id}
+                    onClick={() => handleCitySelect(city)}
+                    style={{
+                      padding: "14px 16px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      transition: "all 0.2s ease",
+                      background: formData.city === city.name ? "rgba(56, 189, 248, 0.2)" : "transparent"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = formData.city === city.name ? "rgba(56, 189, 248, 0.2)" : "transparent";
+                    }}
+                  >
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center"
+                    }}>
+                      <div style={{ textAlign: "left" }}>
+                        <div style={{ color: "white", fontWeight: "600", fontSize: "14px" }}>
+                          {city.name}
+                        </div>
+                        <div style={{ color: "#94a3b8", fontSize: "12px" }}>
+                          {city.country} • {city.airport}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {errors.city && <p style={{ color: "#ef4444", fontSize: "12px", marginTop: "6px" }}>{errors.city}</p>}
         </div>
 
         {/* Check-in Date */}
@@ -314,6 +377,7 @@ const SearchForm = () => {
                 padding: "8px 12px",
                 transition: "all 0.2s ease"
               }}
+              onHover={(e) => e.target.style.color = "#8b5cf6"}
             >
               −
             </button>
@@ -337,13 +401,14 @@ const SearchForm = () => {
                 padding: "8px 12px",
                 transition: "all 0.2s ease"
               }}
+              onHover={(e) => e.target.style.color = "#8b5cf6"}
             >
               +
             </button>
           </div>
         </div>
 
-        {/* Adults & Children */}
+        {/* Guests */}
         <div>
           <label style={{
             display: "block",
@@ -366,12 +431,13 @@ const SearchForm = () => {
             padding: "8px 12px"
           }}>
             <div style={{ textAlign: "center", flex: 1 }}>
-              <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "4px" }}>Adults</div>
+              <div style={{ fontSize: "11px", color: "#94a3b8" }}>Adults</div>
               <div style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "6px"
+                gap: "6px",
+                marginTop: "4px"
               }}>
                 <button
                   onClick={() => handleRoomChange("adults", "dec")}
@@ -386,9 +452,7 @@ const SearchForm = () => {
                 >
                   −
                 </button>
-                <span style={{ color: "white", fontWeight: "600", minWidth: "20px" }}>
-                  {formData.adults}
-                </span>
+                <span style={{ color: "white", fontWeight: "600" }}>{formData.adults}</span>
                 <button
                   onClick={() => handleRoomChange("adults", "inc")}
                   style={{
@@ -408,12 +472,13 @@ const SearchForm = () => {
             <div style={{ width: "1px", height: "30px", background: "rgba(255, 255, 255, 0.1)" }}></div>
 
             <div style={{ textAlign: "center", flex: 1 }}>
-              <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "4px" }}>Children</div>
+              <div style={{ fontSize: "11px", color: "#94a3b8" }}>Children</div>
               <div style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "6px"
+                gap: "6px",
+                marginTop: "4px"
               }}>
                 <button
                   onClick={() => handleRoomChange("children", "dec")}
@@ -428,9 +493,7 @@ const SearchForm = () => {
                 >
                   −
                 </button>
-                <span style={{ color: "white", fontWeight: "600", minWidth: "20px" }}>
-                  {formData.children}
-                </span>
+                <span style={{ color: "white", fontWeight: "600" }}>{formData.children}</span>
                 <button
                   onClick={() => handleRoomChange("children", "inc")}
                   style={{
@@ -448,23 +511,49 @@ const SearchForm = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Error Alert */}
-      {errors.dates && (
-        <div style={{
-          background: "rgba(239, 68, 68, 0.1)",
-          border: "1px solid rgba(239, 68, 68, 0.3)",
-          color: "#fca5a5",
-          padding: "12px 16px",
-          borderRadius: "10px",
-          marginBottom: "20px",
-          fontSize: "13px",
-          fontWeight: "600"
-        }}>
-          ⚠️ {errors.dates}
+        {/* Event Type */}
+        <div>
+          <label style={{
+            display: "block",
+            marginBottom: "10px",
+            color: "#cbd5e1",
+            fontSize: "12px",
+            fontWeight: "600",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px"
+          }}>
+            🎯 Event Type
+          </label>
+          <select
+            value={formData.eventType}
+            onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+            style={{
+              width: "100%",
+              padding: "14px 16px",
+              borderRadius: "14px",
+              border: "2px solid rgba(255, 255, 255, 0.15)",
+              background: "rgba(255, 255, 255, 0.08)",
+              color: "white",
+              fontSize: "14px",
+              transition: "all 0.3s ease",
+              fontFamily: "Poppins, sans-serif",
+              cursor: "pointer"
+            }}
+            onFocus={(e) => {
+              e.target.style.background = "rgba(255, 255, 255, 0.12)";
+              e.target.style.borderColor = "#38bdf8";
+            }}
+            onBlur={(e) => {
+              e.target.style.background = "rgba(255, 255, 255, 0.08)";
+            }}
+          >
+            <option value="MICE">MICE (Corporate)</option>
+            <option value="WEDDING">Wedding</option>
+            <option value="CONFERENCE">Conference</option>
+          </select>
         </div>
-      )}
+      </div>
 
       {/* Search Button */}
       <div style={{ textAlign: "center" }}>
@@ -494,18 +583,8 @@ const SearchForm = () => {
           🔍 Search Hotels
         </button>
       </div>
-
-      {/* Info Text */}
-      <p style={{
-        marginTop: "20px",
-        textAlign: "center",
-        color: "rgba(255, 255, 255, 0.6)",
-        fontSize: "12px"
-      }}>
-        ⚡ Real-time TBO API powered • 100+ hotels • Instant availability
-      </p>
     </div>
   );
 };
 
-export default SearchForm;
+export default HotelSearch;

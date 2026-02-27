@@ -19,6 +19,7 @@ import GuestEventApp from "./pages/Event/GuestEventApp";
 import AIInsights from "./pages/AIInsights/AIInsights.jsx";
 import Guests from "./pages/Guests/Guests.jsx";
 import ResourceAllocation from "./pages/ResourceAllocation/ResourceAllocation.jsx";
+import HotelSearchPage from "./pages/HotelSearchPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -110,6 +111,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hotel-search"
+            element={
+              <ProtectedRoute>
+                <HotelSearchPage />
               </ProtectedRoute>
             }
           />

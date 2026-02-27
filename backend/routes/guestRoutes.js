@@ -2,6 +2,7 @@ import express from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
+import Guest from '../models/Guest.js';
 import {
   createGuest,
   getGuests,
@@ -23,7 +24,26 @@ const validate = (req, res, next) => {
   next();
 };
 
-// Get all guests (Admin sees all, client sees own)
+// PUBLIC DEMO ENDPOINT - Get guests by event ID (no auth required for hackathon)
+router.get('/demo/:eventId', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const guests = await Guest.find({ eventId }).sort('-createdAt');
+
+    res.json({
+      success: true,
+      count: guests.length,
+      data: guests
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get all guests (Admin sees all, client sees own) - Protected
 router.get('/', protect, getGuests);
 
 // Get dietary analytics

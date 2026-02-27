@@ -1,25 +1,34 @@
 import "./GuestCard.css";
 
-const GuestProfileCard = ({ guest, onEdit, onDelete }) => {
+const GuestProfileCard = ({ guest, onEdit, onDelete, isDemoMode = false }) => {
   return (
     <div className="guest-card">
       <div className="guest-card-header">
         <h3 className="guest-name">{guest.name}</h3>
         <div className="guest-actions">
-          <button
-            className="btn-card btn-edit"
-            onClick={() => onEdit(guest)}
-            title="Edit profile"
-          >
-            ✏️
-          </button>
-          <button
-            className="btn-card btn-delete"
-            onClick={() => onDelete(guest.id)}
-            title="Delete profile"
-          >
-            🗑️
-          </button>
+          {!isDemoMode && (
+            <button
+              className="btn-card btn-edit"
+              onClick={() => onEdit(guest)}
+              title="Edit profile"
+            >
+              ✏️
+            </button>
+          )}
+          {!isDemoMode && (
+            <button
+              className="btn-card btn-delete"
+              onClick={() => onDelete(guest._id || guest.id)}
+              title="Remove guest"
+            >
+              🗑️
+            </button>
+          )}
+          {isDemoMode && (
+            <div className="demo-indicator" title="Behavioral Demo Profile">
+              🎯
+            </div>
+          )}
         </div>
       </div>
 
@@ -41,7 +50,7 @@ const GuestProfileCard = ({ guest, onEdit, onDelete }) => {
         {/* Room Preferences */}
         <div className="card-section">
           <p>
-            <strong>🏨 Room:</strong> {guest.roomPreference.charAt(0).toUpperCase() + guest.roomPreference.slice(1)}
+            <strong>🏨 Room:</strong> {guest.roomPreference ? (guest.roomPreference.charAt(0).toUpperCase() + guest.roomPreference.slice(1)) : 'Standard'}
           </p>
           <div className="preference-tags">
             {guest.quietRoom && <span className="tag">Quiet Room</span>}

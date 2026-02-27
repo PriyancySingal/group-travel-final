@@ -3,7 +3,7 @@ import GuestProfileForm from "./GuestProfileForm";
 import GuestProfileCard from "./GuestProfileCard";
 import GuestAlerts from "./GuestAlerts";
 import GuestStats from "./GuestStats";
-import GuestPreferencesService from "./GuestPreferencesService";
+import GuestPreferencesAPI from "./GuestPreferencesAPI";
 import "./Guests.css";
 
 const Guests = () => {
@@ -15,32 +15,48 @@ const Guests = () => {
   const [filterSpecialNeeds, setFilterSpecialNeeds] = useState(false);
   const [sortBy, setSortBy] = useState("name");
 
+  // Check if using behavioral demo data
+  const isDemoMode = false; // Always allow guest management
+
   // Load guests on component mount
   useEffect(() => {
     loadGuests();
     loadAlerts();
 
-    // Subscribe to real-time updates
-    const unsubscribe = GuestPreferencesService.subscribe((alert) => {
-      setAlerts(prev => [alert, ...prev]);
+    // Subscribe to alert updates
+    const unsubscribe = GuestPreferencesAPI.subscribe(() => {
+      loadAlerts();
     });
 
     return unsubscribe;
   }, []);
 
-  const loadGuests = () => {
-    const savedGuests = GuestPreferencesService.getAllGuests();
+  const loadGuests = async () => {
+    const savedGuests = await GuestPreferencesAPI.getAllGuests();
     setGuests(savedGuests);
   };
 
-  const loadAlerts = () => {
-    const savedAlerts = GuestPreferencesService.getAllAlerts();
-    setAlerts(savedAlerts.slice(0, 10)); // Show last 10 alerts
+  const loadAlerts = async () => {
+    const savedAlerts = await GuestPreferencesAPI.getAllAlerts();
+    console.log(
+      "Alert IDs from API:",
+      savedAlerts.map(a => a.id)
+    );
+
+    // Deduplicate by ID in case corrupted data exists
+    const unique = Array.from(
+      new Map(savedAlerts.map(a => [a.id, a])).values()
+    );
+
+    setAlerts(unique.slice(0, 10)); // Show last 10 alerts
   };
 
   const handleAddGuest = () => {
+    console.log('🔍 Add Guest button clicked!');
+    console.log('🔍 Current isDemoMode:', isDemoMode);
     setEditingGuest(null);
     setShowForm(true);
+    console.log('🔍 showForm set to true');
   };
 
   const handleEditGuest = (guest) => {
@@ -48,18 +64,25 @@ const Guests = () => {
     setShowForm(true);
   };
 
-  const handleDeleteGuest = (guestId) => {
+  const handleDeleteGuest = async (guestId) => {
     if (window.confirm("Are you sure you want to remove this guest?")) {
-      GuestPreferencesService.deleteGuest(guestId);
+      await GuestPreferencesAPI.deleteGuest(guestId);
       loadGuests();
     }
   };
 
-  const handleSaveGuest = (guestData) => {
-    GuestPreferencesService.saveGuest(guestData);
-    loadGuests();
-    loadAlerts();
-    setShowForm(false);
+  const handleSaveGuest = async (guestData) => {
+    try {
+      console.log('🔍 Saving guest data:', guestData);
+      await GuestPreferencesAPI.saveGuest(guestData);
+      console.log('✅ Guest saved successfully');
+      loadGuests();
+      loadAlerts();
+      setShowForm(false);
+    } catch (error) {
+      console.error('❌ Error saving guest:', error);
+      alert('Failed to save guest: ' + error.message);
+    }
   };
 
   const handleCancelForm = () => {
@@ -67,13 +90,13 @@ const Guests = () => {
     setEditingGuest(null);
   };
 
-  const handleDismissAlert = (alertId) => {
-    GuestPreferencesService.dismissAlert(alertId);
+  const handleDismissAlert = async (alertId) => {
+    await GuestPreferencesAPI.dismissAlert(alertId);
     loadAlerts();
   };
 
   const handleExportCSV = () => {
-    const csv = GuestPreferencesService.exportGuestsAsCSV();
+    const csv = GuestPreferencesAPI.exportGuestsAsCSV(guests);
     const element = document.createElement("a");
     element.setAttribute(
       "href",
@@ -89,17 +112,17 @@ const Guests = () => {
     document.body.removeChild(element);
   };
 
-  const handleGenerateReport = () => {
-    const report = GuestPreferencesService.generateGuestReport();
+  const handleGenerateReport = async () => {
+    const report = await GuestPreferencesAPI.generateGuestReport();
     console.log("Guest Report:", report);
     alert(
       `Report Generated:\n\nTotal Guests: ${report.totalGuests}\n\nView console for full details.`
     );
   };
 
-  const handleClearAlerts = () => {
+  const handleClearAlerts = async () => {
     if (window.confirm("Clear all alerts?")) {
-      GuestPreferencesService.clearAllAlerts();
+      await GuestPreferencesAPI.clearAllAlerts();
       loadAlerts();
     }
   };
@@ -162,9 +185,16 @@ const Guests = () => {
 
       {/* Controls Section */}
       <div className="guests-controls">
-        <button className="btn-primary btn-add" onClick={handleAddGuest}>
-          ➕ Add New Guest
-        </button>
+        {isDemoMode ? (
+          <div className="demo-notice">
+            <span className="demo-badge">🎯 BEHAVIORAL DEMO MODE</span>
+            <span className="demo-text">Viewing 12 engineered guest profiles with AI insights</span>
+          </div>
+        ) : (
+          <button className="btn-primary btn-add" onClick={handleAddGuest}>
+            ➕ Add New Guest
+          </button>
+        )}
 
         <div className="controls-group">
           <input
@@ -232,10 +262,11 @@ const Guests = () => {
             <div className="guests-grid">
               {filteredGuests.map(guest => (
                 <GuestProfileCard
-                  key={guest.id}
+                  key={guest._id || guest.id}
                   guest={guest}
                   onEdit={handleEditGuest}
                   onDelete={handleDeleteGuest}
+                  isDemoMode={isDemoMode}
                 />
               ))}
             </div>

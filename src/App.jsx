@@ -56,13 +56,13 @@ function App() {
             }
           />
           <Route
-  path="/admin/events"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <AdminEvents />
-    </ProtectedRoute>
-  }
-/>
+            path="/admin/events"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminEvents />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/guests"
             element={

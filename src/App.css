@@ -9,7 +9,7 @@
 }
 
 /* Navbar spacing */
-#root > nav {
+#root>nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -18,7 +18,8 @@
 }
 
 /* Main content spacing for fixed navbar */
-section, .container {
+section,
+.container {
   margin-top: 80px;
 }
 
@@ -54,7 +55,8 @@ section:first-of-type {
     padding: 1rem;
   }
 
-  section, .container {
+  section,
+  .container {
     margin-top: 70px;
   }
 }

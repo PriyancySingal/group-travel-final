@@ -477,7 +477,7 @@ CREATE TABLE alerts (
 
 ### API Connection Issues
 
-- Verify backend server is running on port 5000
+- Verify backend server is running on port 5001
 - Check CORS settings on backend
 - Verify `REACT_APP_API_URL` environment variable
 

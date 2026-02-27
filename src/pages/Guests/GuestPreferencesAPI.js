@@ -6,22 +6,76 @@
  * To enable: Import this service instead of GuestPreferencesService in Guests.jsx
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL = "http://localhost:5001";
+
+// Get stored event ID from localStorage or use the seeded event ID
+const getEventId = () => {
+  return localStorage.getItem('currentEventId') || '69a16584ef6c5d8dc73f14dd';
+};
 
 class GuestPreferencesAPI {
   /**
-   * Get all guests from backend
+   * Get authorization header for demo mode
+   */
+  static getAuthHeaders() {
+    return {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer demo_admin_token"
+    };
+  }
+
+  /**
+   * Get all guests from backend by event ID
    */
   static async getAllGuests() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/guests`);
-      if (!response.ok) throw new Error("Failed to fetch guests");
+      const eventId = getEventId();
+      const url = `${API_BASE_URL}/api/guests/demo/${eventId}`;
+      console.log('🔍 Fetching guests for event:', eventId);
+      console.log('🌐 Full URL:', url);
+
+      // Use public demo endpoint for hackathon (no auth required)
+      const response = await fetch(url);
+      console.log('📡 API Response status:', response.status);
+      console.log('📡 API Response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error response:', errorText);
+        console.warn('Demo API failed, falling back to localStorage');
+        return this.getLocalGuests();
+      }
+
       const result = await response.json();
-      return result.data || [];
+      console.log('📊 API Result:', result);
+      const guests = result.data || [];
+      console.log('👥 Guests from API:', guests.length);
+
+      // If API has guests, use them (sync to localStorage for backup)
+      if (guests.length > 0) {
+        localStorage.setItem('group_travel_guests', JSON.stringify(guests));
+        console.log('✅ Using API guests, synced to localStorage');
+        return guests;
+      }
+
+      // If no API guests, try localStorage
+      console.log('⚠️ No API guests, falling back to localStorage');
+      return this.getLocalGuests();
     } catch (error) {
-      console.error("Error fetching guests:", error);
-      return [];
+      console.error("❌ Error fetching guests from API:", error);
+      console.error("❌ Error details:", error.message);
+      console.error("❌ Error stack:", error.stack);
+      return this.getLocalGuests();
     }
+  }
+
+  /**
+   * Fallback to localStorage guests
+   */
+  static getLocalGuests() {
+    const STORAGE_KEY = "group_travel_guests";
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
   }
 
   /**
@@ -29,7 +83,9 @@ class GuestPreferencesAPI {
    */
   static async getGuestById(guestId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/guests/${guestId}`);
+      const response = await fetch(`${API_BASE_URL}/api/guests/${guestId}`, {
+        headers: this.getAuthHeaders()
+      });
       if (!response.ok) throw new Error("Guest not found");
       const result = await response.json();
       return result.data;
@@ -44,16 +100,24 @@ class GuestPreferencesAPI {
    */
   static async saveGuest(guestData) {
     try {
+      console.log('🔍 API: Saving guest with data:', guestData);
       const response = await fetch(`${API_BASE_URL}/api/guests`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(guestData)
       });
 
-      if (!response.ok) throw new Error("Failed to save guest");
+      console.log('📡 API Response status:', response.status);
+      console.log('📡 API Response ok:', response.ok);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error response:', errorText);
+        throw new Error(`Failed to save guest: ${response.status} ${errorText}`);
+      }
+
       const result = await response.json();
+      console.log('✅ API Save result:', result);
 
       // Notify subscribers of the alert
       if (result.alert) {
@@ -62,7 +126,7 @@ class GuestPreferencesAPI {
 
       return result.data;
     } catch (error) {
-      console.error("Error saving guest:", error);
+      console.error("❌ Error saving guest:", error);
       throw error;
     }
   }
@@ -73,10 +137,15 @@ class GuestPreferencesAPI {
   static async deleteGuest(guestId) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/guests/${guestId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: this.getAuthHeaders()
       });
 
-      if (!response.ok) throw new Error("Failed to delete guest");
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error response:', errorText);
+        throw new Error(`Failed to delete guest: ${response.status} ${errorText}`);
+      }
       const result = await response.json();
 
       // Notify subscribers of the alert
@@ -144,7 +213,9 @@ class GuestPreferencesAPI {
    */
   static async getAllAlerts(limit = 50) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/alerts?limit=${limit}`);
+      const response = await fetch(`${API_BASE_URL}/api/alerts?limit=${limit}`, {
+        headers: this.getAuthHeaders()
+      });
       if (!response.ok) throw new Error("Failed to fetch alerts");
       const result = await response.json();
       return result.data || [];
@@ -160,7 +231,8 @@ class GuestPreferencesAPI {
   static async dismissAlert(alertId) {
     try {
       const response = await fetch(`${API_BASE_URL}/api/alerts/${alertId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: this.getAuthHeaders()
       });
 
       if (!response.ok) throw new Error("Failed to dismiss alert");
@@ -177,7 +249,8 @@ class GuestPreferencesAPI {
   static async clearAllAlerts() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/alerts`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: this.getAuthHeaders()
       });
 
       if (!response.ok) throw new Error("Failed to clear alerts");

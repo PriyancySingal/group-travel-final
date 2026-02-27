@@ -371,7 +371,7 @@ Update WebSocket connection details:
 ```javascript
 // src/services/RealTimeUpdateService.js
 const wsUrl =
-  process.env.REACT_APP_WS_URL || `ws://localhost:5000/ws/events/${eventId}`;
+  process.env.REACT_APP_WS_URL || `ws://localhost:5001/ws/events/${eventId}`;
 ```
 
 ### Step 3: Add Environment Variables
@@ -382,8 +382,8 @@ REACT_APP_API_URL=https://api.yourdomain.com
 REACT_APP_WS_URL=wss://api.yourdomain.com/ws
 
 # .env.development
-REACT_APP_API_URL=http://localhost:5000
-REACT_APP_WS_URL=ws://localhost:5000/ws
+REACT_APP_API_URL=http://localhost:5001
+REACT_APP_WS_URL=ws://localhost:5001/ws
 ```
 
 ### Step 4: Update Component Props

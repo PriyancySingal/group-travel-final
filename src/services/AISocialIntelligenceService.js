@@ -1,19 +1,386 @@
 /**
  * AI-Powered Social Intelligence Layer Service
  * Handles guest interaction prediction, networking opportunities, and emotional intelligence
+ * Now connected to backend MongoDB for real-time data
  */
+
+const API_BASE_URL = '/api/ai';
+
+import AuthService from './AuthService';
 
 class AISocialIntelligenceService {
   constructor() {
     this.predictions = new Map();
     this.sentimentHistory = [];
     this.engagementMetrics = new Map();
+    this.currentEventId = null;
+    this.isUsingBackend = true;
   }
 
-  // ===== SOCIAL ENGAGEMENT PREDICTION =====
+  // Set the current event ID for API calls
+  setEventId(eventId) {
+    this.currentEventId = eventId;
+  }
+
+  // Micro dynamic variation (controlled drift)
+  microDrift() {
+    const minute = new Date().getMinutes();
+    return Math.sin(minute / 5) * 3; // Small oscillation between -3 and +3
+  }
+
+  // Dynamic energy calculation based on guests
+  calculateEnergy(guests) {
+    if (!guests.length) return 0;
+
+    const base =
+      40 +
+      guests.length * 2 +
+      guests.filter(g => g.personalityType === "extravert").length * 4 +
+      guests.filter(g => g.personalityType === "ambivert").length * 2;
+
+    const drift = this.microDrift();
+
+    return Math.min(90, Math.max(30, Math.round(base + drift)));
+  }
+
+  // Dynamic participation rate based on social personality
+  calculateParticipation(guests) {
+    if (!guests.length) return 0;
+
+    const sociallyInclined =
+      guests.filter(g =>
+        g.personalityType === "extravert" ||
+        g.personalityType === "ambivert"
+      ).length;
+
+    const ratio = sociallyInclined / guests.length;
+
+    const drift = this.microDrift() / 5;
+
+    return Math.min(100, Math.round(ratio * 100 + drift));
+  }
+
+  // Calculate trend based on previous energy
+  previousEnergies = new Map();
+  calculateTrend(eventId, currentEnergy) {
+    const previous = this.previousEnergies.get(eventId) || currentEnergy;
+    this.previousEnergies.set(eventId, currentEnergy);
+
+    const diff = currentEnergy - previous;
+    if (diff > 2) return "Increasing";
+    if (diff < -2) return "Decreasing";
+    return "Stable";
+  }
+
+  // ============== API CALLS ==============
+
+  // Fetch guests data from backend
+  async fetchGuestsFromBackend(eventId) {
+    try {
+      // always attempt backend if we have a token or we think backend should be used
+      this.isUsingBackend = !!AuthService.getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      const token = AuthService.getToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/guests-data/${eventId}`, {
+        headers
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // authentication issue; let caller fallback but don't permanently disable
+          console.warn('AI backend request unauthorized');
+          return null;
+        }
+        throw new Error('Failed to fetch guests data');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching guests from backend:', error);
+      return null;
+    }
+  }
+
+  // Fetch all predictions from backend
+  async fetchPredictionsFromBackend(eventId) {
+    try {
+      this.isUsingBackend = !!AuthService.getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      const token = AuthService.getToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/predictions/${eventId}`, {
+        headers
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('AI backend request unauthorized');
+          return null;
+        }
+        throw new Error('Failed to fetch predictions');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching predictions from backend:', error);
+      return null;
+    }
+  }
+
+  // Subscribe to live prediction stream (EventSource)
+  subscribeToPredictionStream(eventId, onPrediction, onError) {
+    const token = AuthService.getToken();
+    let url = `${API_BASE_URL}/predictions-stream/${eventId}`;
+    if (token) {
+      // add token in query string for SSE auth
+      url += `?token=${token}`;
+    }
+    const source = new EventSource(url);
+
+    source.addEventListener('prediction', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        onPrediction(data);
+      } catch (err) {
+        console.error('Failed to parse SSE prediction event', err);
+      }
+    });
+    source.addEventListener('error', (e) => {
+      console.error('Prediction stream error', e);
+      if (onError) onError(e);
+    });
+
+    return source; // caller can close via source.close()
+  }
+
+  // Track engagement to backend
+  async trackEngagementToBackend(engagementData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/track-engagement`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(engagementData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to track engagement');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error tracking engagement:', error);
+      return null;
+    }
+  }
+
+  // Track engagement EVENT (new event-driven system)
+  async trackEngagementEvent({ eventId, guestId, eventType, metadata = {} }) {
+    try {
+      const token = AuthService.getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/track-event`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ eventId, guestId, eventType, metadata })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to track engagement event');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error tracking engagement event:', error);
+      return null;
+    }
+  }
+
+  // Track sentiment to backend
+  async trackSentimentToBackend(sentimentData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/track-sentiment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(sentimentData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to track sentiment');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error tracking sentiment:', error);
+      return null;
+    }
+  }
+
+  // Get engagement stats
+  async getEngagementStats(eventId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/engagement-stats/${eventId}`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch engagement stats');
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching engagement stats:', error);
+      return null;
+    }
+  }
+
+  // Get sentiment analytics
+  async getSentimentAnalytics(eventId, timeRange = 60) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sentiment-analytics/${eventId}?timeRange=${timeRange}`, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch sentiment analytics');
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching sentiment analytics:', error);
+      return null;
+    }
+  }
+
+  // ============== INTERACTION EVENT TRACKING =============
 
   /**
-   * Predict how guests might interact based on profiles and social graphs
+   * Record a guest interaction event
+   * @param {string} eventId - Event ID
+   * @param {Object} interactionData - { guestId, targetGuestId, type, metadata }
+   */
+  async recordInteraction(eventId, { guestId, targetGuestId, type, metadata = {} }) {
+    try {
+      const token = AuthService.getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/interactions/${eventId}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ guestId, targetGuestId, type, metadata })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to record interaction');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error recording interaction:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get interaction history for an event
+   * @param {string} eventId - Event ID
+   * @param {Object} options - { type, since, limit }
+   */
+  async getInteractions(eventId, options = {}) {
+    try {
+      const { type, since, limit = 100 } = options;
+      const token = AuthService.getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const queryParams = new URLSearchParams();
+      if (type) queryParams.append('type', type);
+      if (since) queryParams.append('since', since);
+      queryParams.append('limit', limit);
+
+      const response = await fetch(`${API_BASE_URL}/interactions/${eventId}?${queryParams}`, {
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch interactions');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching interactions:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get interaction statistics for an event
+   * @param {string} eventId - Event ID
+   */
+  async getInteractionStats(eventId) {
+    try {
+      const token = AuthService.getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/interactions/${eventId}/stats`, {
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch interaction stats');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching interaction stats:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get smart pairings based on interaction history
+   * @param {string} eventId - Event ID
+   */
+  async getSmartPairings(eventId) {
+    try {
+      const token = AuthService.getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/smart-pairings/${eventId}`, {
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch smart pairings');
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching smart pairings:', error);
+      return null;
+    }
+  }
+
+  // ============== SOCIAL ENGAGEMENT PREDICTION =============
+
+  /**
+   * Predict how guests might interact based on profiles
    * @param {Array} guests - List of guests with profiles
    * @returns {Array} Guest interaction predictions
    */
@@ -22,7 +389,7 @@ class AISocialIntelligenceService {
 
     for (const guest of guests) {
       const interactionProfile = {
-        guestId: guest.id,
+        guestId: guest.id || guest._id,
         guestName: guest.name,
         interactionScore: this.calculateInteractionScore(guest),
         socialPreferences: this.determineSocialPreferences(guest),
@@ -31,7 +398,7 @@ class AISocialIntelligenceService {
       };
 
       predictions.push(interactionProfile);
-      this.predictions.set(guest.id, interactionProfile);
+      this.predictions.set(guest.id || guest._id, interactionProfile);
     }
 
     return predictions;
@@ -68,9 +435,9 @@ class AISocialIntelligenceService {
   determineSocialPreferences(guest) {
     return {
       networkingFriendly: guest.openToNetworking !== false,
-      groupActivityPreference: guest.groupActivityPreference || 'moderate', // low, moderate, high
+      groupActivityPreference: guest.groupActivityPreference || 'moderate',
       introvertExtravert: this.analyzePersonalityTrait(guest),
-      communicationStyle: guest.communicationStyle || 'balanced', // formal, casual, balanced
+      communicationStyle: guest.communicationStyle || 'balanced',
       interestAreas: guest.interests || [],
       professionalFocus: guest.professionalInterests || [],
       hobbyInterests: guest.hobbyInterests || [],
@@ -86,21 +453,21 @@ class AISocialIntelligenceService {
       introvert: {
         name: 'Introvert',
         preference: 'Small group conversations',
-        optimalGroupSize: 2-4,
+        optimalGroupSize: '2-4',
         energyDrain: 'Large events',
         suggestion: 'One-on-one networking sessions',
       },
       extravert: {
         name: 'Extravert',
         preference: 'Large group activities',
-        optimalGroupSize: 8-15,
+        optimalGroupSize: '8-15',
         energyDrain: 'Quiet individual activities',
         suggestion: 'Group games and networking events',
       },
       ambivert: {
         name: 'Ambivert',
         preference: 'Flexible social engagement',
-        optimalGroupSize: 4-8,
+        optimalGroupSize: '4-8',
         energyDrain: 'Extreme social or solitary situations',
         suggestion: 'Balanced mix of group and small activities',
       },
@@ -130,12 +497,10 @@ class AISocialIntelligenceService {
     return risks;
   }
 
-  // ===== NETWORKING OPPORTUNITIES =====
+  // ============== NETWORKING OPPORTUNITIES =============
 
   /**
    * Suggest networking sessions based on guest interests
-   * @param {Array} guests - List of guests
-   * @returns {Array} Networking recommendations
    */
   suggestNetworkingOpportunities(guests) {
     const opportunities = [];
@@ -149,7 +514,7 @@ class AISocialIntelligenceService {
           interest: interest,
           title: `${interest} Networking Session`,
           description: `Connect with fellow enthusiasts interested in ${interest}`,
-          suggestedParticipants: groupMembers.map(g => ({ id: g.id, name: g.name })),
+          suggestedParticipants: groupMembers.map(g => ({ id: g.id || g._id, name: g.name })),
           participantCount: groupMembers.length,
           duration: '45 minutes',
           format: 'Structured networking with icebreaker activities',
@@ -185,10 +550,8 @@ class AISocialIntelligenceService {
    * Find optimal session time based on guest preferences
    */
   findOptimalSessionTime(guests) {
-    // Simple algorithm: find common availability
     const timeSlots = ['Morning (9-11 AM)', 'Late Morning (11-1 PM)', 'Afternoon (2-4 PM)', 'Early Evening (5-7 PM)'];
-    
-    // Count preferences
+
     const preferences = timeSlots.map(slot => ({
       slot,
       score: guests.filter(g => g.preferredTimeSlots?.includes(slot)).length,
@@ -198,13 +561,10 @@ class AISocialIntelligenceService {
     return best?.slot || 'Afternoon (2-4 PM)';
   }
 
-  // ===== GUEST PAIRING =====
+  // ============== GUEST PAIRING =============
 
   /**
    * Identify ideal guest pairings for activities
-   * @param {Array} guests - List of guests
-   * @param {String} activity - Type of activity
-   * @returns {Array} Recommended guest pairings
    */
   suggestGuestPairings(guests, activity = 'general') {
     const pairings = [];
@@ -213,18 +573,18 @@ class AISocialIntelligenceService {
     // Sort by compatibility score
     const sortedPairs = Array.from(compatibility.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, Math.floor(guests.length / 2)); // Limit to reasonable number
+      .slice(0, Math.floor(guests.length / 2));
 
     for (const [pairKey, score] of sortedPairs) {
       const [guest1Id, guest2Id] = pairKey.split('_');
-      const guest1 = guests.find(g => g.id === guest1Id);
-      const guest2 = guests.find(g => g.id === guest2Id);
+      const guest1 = guests.find(g => (g.id || g._id) === guest1Id);
+      const guest2 = guests.find(g => (g.id || g._id) === guest2Id);
 
       if (guest1 && guest2) {
         pairings.push({
           pairId: pairKey,
-          guest1: { id: guest1.id, name: guest1.name },
-          guest2: { id: guest2.id, name: guest2.name },
+          guest1: { id: guest1.id || guest1._id, name: guest1.name },
+          guest2: { id: guest2.id || guest2._id, name: guest2.name },
           compatibilityScore: Math.round(score * 100),
           sharedInterests: this.findSharedInterests(guest1, guest2),
           suggestedActivity: this.suggestActivityForPair(guest1, guest2, activity),
@@ -246,9 +606,9 @@ class AISocialIntelligenceService {
       for (let j = i + 1; j < guests.length; j++) {
         const guest1 = guests[i];
         const guest2 = guests[j];
-        const pairKey = `${guest1.id}_${guest2.id}`;
+        const pairKey = `${guest1.id || guest1._id}_${guest2.id || guest2._id}`;
 
-        let score = 0.5; // baseline
+        let score = 0.5;
 
         // Shared interests boost compatibility
         const sharedInterests = (guest1.interests || []).filter(i =>
@@ -301,13 +661,13 @@ class AISocialIntelligenceService {
    */
   suggestActivityForPair(guest1, guest2, activity) {
     const sharedInterests = this.findSharedInterests(guest1, guest2);
-    
+
     if (sharedInterests.includes('sports')) return 'Team sports or golf activity';
     if (sharedInterests.includes('travel')) return 'Travel story sharing session';
     if (sharedInterests.includes('technology')) return 'Tech talk or innovation workshop';
     if (sharedInterests.includes('food')) return 'Culinary experience or food tasting';
     if (sharedInterests.includes('arts')) return 'Art gallery tour or creative workshop';
-    
+
     return 'General networking or dinner conversation';
   }
 
@@ -338,18 +698,24 @@ class AISocialIntelligenceService {
     return prediction;
   }
 
-  // ===== DYNAMIC SOCIAL SCHEDULING =====
+  // ============== REAL-TIME ENGAGEMENT =============
 
   /**
    * Analyze real-time guest engagement
-   * @param {Object} eventData - Current event data
-   * @returns {Object} Engagement analysis and recommendations
    */
-  analyzeRealTimeEngagement(eventData) {
+  analyzeRealTimeEngagement(guests) {
+    const currentEngagementLevel = this.calculateEnergy(guests);
+    const participationRate = this.calculateParticipation(guests);
+    const momentum = this.calculateTrend(this.currentEventId, currentEngagementLevel);
+
     const analysis = {
-      currentEngagementLevel: this.calculateEngagementLevel(eventData),
-      participationRate: this.calculateParticipationRate(eventData),
-      engagementTrends: this.identifyEngagementTrends(eventData),
+      currentEngagementLevel: currentEngagementLevel,
+      participationRate: participationRate,
+      engagementTrends: {
+        momentum: momentum,
+        peakActivityTime: '2-4 PM',
+        lowActivityPeriods: ['After lunch (1-2 PM)']
+      },
       recommendations: [],
       suggestedScheduleAdjustments: [],
     };
@@ -374,9 +740,6 @@ class AISocialIntelligenceService {
     return analysis;
   }
 
-  /**
-   * Calculate overall engagement level (0-100)
-   */
   calculateEngagementLevel(eventData) {
     let score = 50;
 
@@ -391,71 +754,30 @@ class AISocialIntelligenceService {
     return Math.round(score);
   }
 
-  /**
-   * Calculate participation rate (0-100)
-   */
   calculateParticipationRate(eventData) {
     if (!eventData.totalGuests || eventData.totalGuests === 0) return 0;
     return Math.round((eventData.activeParticipants / eventData.totalGuests) * 100);
   }
 
-  /**
-   * Identify engagement trends
-   */
   identifyEngagementTrends(eventData) {
     return {
       momentum: eventData.engagementScore > 70 ? 'Increasing' : eventData.engagementScore < 40 ? 'Decreasing' : 'Stable',
-      peakActivityTime: this.findPeakActivityTime(eventData),
-      lowActivityPeriods: this.findLowActivityPeriods(eventData),
+      peakActivityTime: eventData.peakActivityTime || '2-4 PM',
+      lowActivityPeriods: eventData.lowActivityPeriods || ['After lunch (1-2 PM)'],
     };
   }
 
-  findPeakActivityTime(eventData) {
-    return eventData.peakActivityTime || '2-4 PM';
-  }
-
-  findLowActivityPeriods(eventData) {
-    return eventData.lowActivityPeriods || ['After lunch (1-2 PM)'];
-  }
-
-  /**
-   * Suggest schedule adjustments based on engagement
-   */
-  suggestScheduleAdjustments(currentSchedule, engagementData) {
-    const adjustments = [];
-
-    if (engagementData.engagementLevel < 40) {
-      adjustments.push({
-        type: 'ACTIVITY_SWAP',
-        reason: 'Low engagement with current activity',
-        suggestion: 'Replace current activity with high-energy team game',
-      });
-    }
-
-    if (engagementData.participationRate < 60) {
-      adjustments.push({
-        type: 'BREAK_INSERTION',
-        reason: 'Guest fatigue detected',
-        suggestion: 'Insert 15-minute wellness break with refreshments',
-      });
-    }
-
-    return adjustments;
-  }
-
-  // ===== EMOTIONALLY-DRIVEN CUSTOMIZATION =====
+  // ============== EMOTIONAL INTELLIGENCE =============
 
   /**
    * Predict guest emotional states and suggest optimal activities
-   * @param {Array} guests - List of guests
-   * @returns {Array} Emotional profile and activity recommendations
    */
   predictGuestEmotionalStates(guests) {
     const emotionalProfiles = [];
 
     for (const guest of guests) {
       const profile = {
-        guestId: guest.id,
+        guestId: guest.id || guest._id,
         guestName: guest.name,
         predictedEmotionalState: this.analyzeEmotionalState(guest),
         recommendedActivityType: this.suggestActivityByEmotionalState(guest),
@@ -469,11 +791,10 @@ class AISocialIntelligenceService {
   }
 
   /**
-   * Analyze emotional state from social media activity and feedback
+   * Analyze emotional state from guest profile
    */
   analyzeEmotionalState(guest) {
-    let dominantEmotion = 'neutral';
-    let confidence = 0.5;
+    let dominantEmotion = guest.emotionalState || 'neutral';
     const emotionalIndicators = {};
 
     // Analyze social media activity
@@ -488,7 +809,7 @@ class AISocialIntelligenceService {
       emotionalIndicators['app_feedback'] = recentFeedback;
     }
 
-    // Determine dominant emotion
+    // Override based on energy/stress levels
     if (guest.energyLevel === 'low') {
       dominantEmotion = 'tired';
     } else if (guest.engagementScore > 80) {
@@ -528,13 +849,18 @@ class AISocialIntelligenceService {
    * Suggest activity based on emotional state
    */
   suggestActivityByEmotionalState(guest) {
-    const state = guest.emotionalState?.state || 'neutral';
+    const state = guest.emotionalState || guest.predictedEmotionalState?.state || 'neutral';
 
     const activityMap = {
       excited: {
         type: 'High-Energy Activities',
         suggestions: ['Team sports', 'Group games', 'Dance or music events', 'Adventure activities'],
         duration: '60+ minutes',
+      },
+      happy: {
+        type: 'Balanced Activities',
+        suggestions: ['Networking sessions', 'Workshops', 'Cultural events'],
+        duration: '45-60 minutes',
       },
       neutral: {
         type: 'Balanced Activities',
@@ -550,6 +876,11 @@ class AISocialIntelligenceService {
         type: 'Re-engagement Activities',
         suggestions: ['Interest-based small group', 'One-on-one mentoring', 'Personalized consulting', 'VIP experience'],
         duration: '30-45 minutes',
+      },
+      stressed: {
+        type: 'Stress Relief Activities',
+        suggestions: ['Mindfulness session', 'Quiet break', 'Wellness activities'],
+        duration: '20-30 minutes',
       },
     };
 
@@ -592,11 +923,10 @@ class AISocialIntelligenceService {
     return recommendations;
   }
 
-  // ===== SENTIMENT ANALYSIS & REAL-TIME ADJUSTMENTS =====
+  // ============== SENTIMENT ANALYSIS =============
 
   /**
    * Track and analyze sentiment from guest feedback
-   * @param {Object} feedback - Guest feedback data
    */
   trackSentiment(feedback) {
     const sentimentEntry = {
@@ -670,36 +1000,7 @@ class AISocialIntelligenceService {
     return 'neutral';
   }
 
-  /**
-   * Suggest adjustments based on sentiment analysis
-   */
-  suggestAdjustmentsBasedOnSentiment(sentimentTrends) {
-    const suggestions = [];
-
-    if (sentimentTrends.trend === 'negative') {
-      suggestions.push({
-        priority: 'CRITICAL',
-        action: 'Address guest satisfaction immediately',
-        options: [
-          'Pause current activity and gather feedback',
-          'Offer alternative preferred activities',
-          'Provide personalized attention to unhappy guests',
-        ],
-      });
-    }
-
-    if (sentimentTrends.trend === 'positive') {
-      suggestions.push({
-        priority: 'LOW',
-        action: 'Maintain current experience',
-        options: ['Continue scheduled activities', 'Reinforce what\'s working well'],
-      });
-    }
-
-    return suggestions;
-  }
-
-  // ===== HELPER METHODS =====
+  // ============== HELPER METHODS =============
 
   analyzePersonalityTrait(guest) {
     const type = guest.personalityType || 'ambivert';
@@ -710,6 +1011,32 @@ class AISocialIntelligenceService {
     };
     return traits[type] || traits['ambivert'];
   }
+
+  // ============== COMBINED LOAD METHOD =============
+
+  /**
+   * Load all AI predictions - tries backend first, falls back to local
+   */
+  async loadAllPredictions(eventId, guests = []) {
+    // Try to fetch from backend
+    if (this.isUsingBackend && eventId) {
+      const backendData = await this.fetchPredictionsFromBackend(eventId);
+      if (backendData) {
+        return backendData;
+      }
+    }
+
+    // Fallback to local calculation with provided guests
+    return {
+      interactions: this.predictGuestInteractions(guests),
+      networking: this.suggestNetworkingOpportunities(guests),
+      pairings: this.suggestGuestPairings(guests),
+      emotionalStates: this.predictGuestEmotionalStates(guests),
+      sentimentTrends: this.getSentimentTrends(),
+      realTimeAnalysis: this.analyzeRealTimeEngagement(guests),
+    };
+  }
 }
 
 export default new AISocialIntelligenceService();
+

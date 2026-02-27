@@ -10,7 +10,7 @@ export default function auth(req, res, next) {
   }
 
   const token = authHeader.split(" ")[1];
-console.log("Authorization Header:", authHeader);
+  console.log("Authorization Header:", authHeader);
   /**
    * 2️⃣ DEV MODE BYPASS
    * Accept temporary frontend tokens like: token_12345
@@ -18,6 +18,7 @@ console.log("Authorization Header:", authHeader);
   if (token.startsWith("demo_") || token.startsWith("token_")) {
     req.user = {
       userId: token,
+      _id: token, // Add _id for MongoDB compatibility
       id: token,
       username: "admin_demo",
       role: "admin"
@@ -33,6 +34,7 @@ console.log("Authorization Header:", authHeader);
 
     req.user = {
       userId: decoded.userId,
+      _id: decoded.userId, // Add _id for MongoDB compatibility
       id: decoded.userId,
       username: decoded.username,
       role: decoded.role

@@ -3,7 +3,7 @@
 // // //  * Manages event microsites, itineraries, schedules, and personalized guest information
 // // //  * Handles centralized coordination for group events (weddings, conferences, MICE)
 // // //  */
-// // // const BASE_URL = "http://localhost:5000/api/events";
+// // // const BASE_URL = "http://localhost:5001/api/events";
 
 // // // class EventCoordinationService {
 // // //   static events = [
@@ -420,7 +420,7 @@
 // // //   static updateEvent(eventId, eventData) {
 // // //     const index = this.events.findIndex(e => e.id === eventId);
 // // //     if (index === -1) throw new Error("Event not found");
-    
+
 // // //     const updatedEvent = {
 // // //       ...this.events[index],
 // // //       ...eventData,
@@ -437,7 +437,7 @@
 // // //   static deleteEvent(eventId) {
 // // //     const index = this.events.findIndex(e => e.id === eventId);
 // // //     if (index === -1) throw new Error("Event not found");
-    
+
 // // //     const deletedEvent = this.events[index];
 // // //     this.events.splice(index, 1);
 // // //     this.notifyAdminSubscribers({ action: 'delete', eventId });
@@ -709,439 +709,439 @@ class EventCoordinationService {
   ];/* =======================
    DEMO SCHEDULES
 ======================= */
-static demoSchedules = [
+  static demoSchedules = [
 
-  /* ================= DEMO 1 ================= */
-  {
-    eventId: "demo-1",
-    day: 1,
-    date: "2024-12-20",
-    title: "Arrival & Welcome",
-    activities: [
-      {
-        time: "14:00-16:00",
-        name: "Guest Arrival & Check-in",
-        location: "Grand Himalayan Resort"
-      },
-      {
-        time: "17:00-18:00",
-        name: "Welcome Tea",
-        location: "Grand Ballroom"
-      },
-      {
-        time: "19:00-21:00",
-        name: "Welcome Dinner",
-        location: "Grand Dining Hall",
-        note: "🍽️ Dietary Preferences Apply"
-      }
-    ]
-  },
-  {
-    eventId: "demo-1",
-    day: 2,
-    date: "2024-12-21",
-    title: "Wedding Day",
-    activities: [
-      {
-        time: "08:00-09:00",
-        name: "Breakfast",
-        location: "Hotel Restaurant"
-      },
-      {
-        time: "09:00-14:00",
-        name: "Pre-Wedding Photography",
-        location: "Hotel Gardens"
-      },
-      {
-        time: "14:00-15:30",
-        name: "Lunch",
-        location: "Multi-Cuisine Restaurant",
-        note: "🍽️ Dietary Preferences Apply"
-      },
-      {
-        time: "17:00-19:00",
-        name: "Wedding Ceremony",
-        location: "Grand Lawn",
-        note: "👔 Formal Attire"
-      },
-      {
-        time: "19:00-22:00",
-        name: "Wedding Reception",
-        location: "Grand Ballroom",
-        note: "🍽️ Dietary Preferences Apply"
-      }
-    ]
-  },
-
-  /* ================= DEMO 2 ================= */
-  {
-    eventId: "demo-2",
-    day: 1,
-    date: "2024-11-15",
-    title: "Conference Opening",
-    activities: [
-      {
-        time: "09:00-10:00",
-        name: "Registration",
-        location: "Bangalore International Convention Centre"
-      },
-      {
-        time: "10:00-11:30",
-        name: "Keynote Session",
-        location: "Main Auditorium"
-      },
-      {
-        time: "12:00-13:00",
-        name: "Networking Lunch",
-        location: "Expo Hall",
-        note: "🍽️ Buffet Lunch"
-      }
-    ]
-  },
-
-  /* ================= DEMO 3 ================= */
-  {
-    eventId: "demo-3",
-    day: 1,
-    date: "2024-10-10",
-    title: "Corporate Team Building",
-    activities: [
-      {
-        time: "09:00-11:00",
-        name: "Icebreaker Activities",
-        location: "Goa Beach Lawn"
-      },
-      {
-        time: "11:30-13:00",
-        name: "Leadership Workshop",
-        location: "Conference Hall A"
-      },
-      {
-        time: "18:00-21:00",
-        name: "Beachside Gala Dinner",
-        location: "Beach Resort",
-        note: "👔 Semi-Formal Attire"
-      }
-    ]
-  }
-
-];
-/* =======================
-   DEMO UPDATES
-======================= */
-static demoUpdates = [
-
-  /* ================= DEMO 1 ================= */
-  {
-    id: 1,
-    eventId: "demo-1",
-    type: "schedule",
-    icon: "ℹ️",
-    severity: "info",
-    date: "12/15/2024",
-    message: "Dinner time updated from 8:00 PM to 8:30 PM",
-    timestamp: Date.now() - 5 * 60 * 1000, // 5 minutes ago
-    read: false
-  },
-  {
-    id: 2,
-    eventId: "demo-1",
-    type: "accommodation",
-    icon: "✅",
-    severity: "success",
-    date: "12/14/2024",
-    message: "Room upgrade available for guests in Block A",
-    timestamp: Date.now() - 7200000, // 2 hours ago
-    read: false
-  },
-  {
-    id: 3,
-    eventId: "demo-1",
-    type: "activity",
-    icon: "⚠️",
-    severity: "warning",
-    date: "12/13/2024",
-    message: "Pre-wedding photo session rescheduled to 9:00 AM",
-    timestamp: Date.now() - 45 * 60 * 1000, // 45 minutes ago
-    read: false
-  },
-  {
-    id: 4,
-    eventId: "demo-1",
-    type: "transport",
-    icon: "ℹ️",
-    severity: "info",
-    date: "12/12/2024",
-    message: "Airport shuttle schedule confirmed",
-    timestamp: Date.now() - 6 * 60 * 60 * 1000,
-    read: false
-  },
-
-  /* ================= DEMO 2 ================= */
-  {
-    id: 5,
-    eventId: "demo-2",
-    type: "conference",
-    icon: "ℹ️",
-    severity: "info",
-    date: "11/14/2024",
-    message: "Keynote speaker changed to CTO of Tech India",
-    timestamp: Date.now() - 3600000,
-    read: false
-  },
-  {
-    id: 6,
-    eventId: "demo-2",
-    type: "logistics",
-    icon: "⚠️",
-    severity: "warning",
-    date: "11/13/2024",
-    message: "Registration desk moved to Gate 2",
-    timestamp: Date.now() - 7200000,
-    read: false
-  },
-
-  /* ================= DEMO 3 ================= */
-  {
-    id: 7,
-    eventId: "demo-3",
-    type: "activity",
-    icon: "ℹ️",
-    severity: "info",
-    date: "10/09/2024",
-    message: "Beach volleyball moved to 4:00 PM",
-    timestamp: Date.now() - 3600000,
-    read: false
-  },
-  {
-    id: 8,
-    eventId: "demo-3",
-    type: "transport",
-    icon: "✅",
-    severity: "success",
-    date: "10/08/2024",
-    message: "Airport pickup timings confirmed",
-    timestamp: Date.now() - 7200000,
-    read: false
-  }
-
-];
-
-/* =======================
-   DEMO ITINERARY
-======================= */
-static demoItineraries = {
-
-  /* ================= DEMO 1 ================= */
-  "demo-1": [
+    /* ================= DEMO 1 ================= */
     {
+      eventId: "demo-1",
       day: 1,
-      title: "Arrival at 14:30",
-      note: "Room 501, Deluxe Double"
+      date: "2024-12-20",
+      title: "Arrival & Welcome",
+      activities: [
+        {
+          time: "14:00-16:00",
+          name: "Guest Arrival & Check-in",
+          location: "Grand Himalayan Resort"
+        },
+        {
+          time: "17:00-18:00",
+          name: "Welcome Tea",
+          location: "Grand Ballroom"
+        },
+        {
+          time: "19:00-21:00",
+          name: "Welcome Dinner",
+          location: "Grand Dining Hall",
+          note: "🍽️ Dietary Preferences Apply"
+        }
+      ]
     },
     {
+      eventId: "demo-1",
       day: 2,
-      title: "Wedding Ceremony at 17:00",
-      note: "Formal attire required"
+      date: "2024-12-21",
+      title: "Wedding Day",
+      activities: [
+        {
+          time: "08:00-09:00",
+          name: "Breakfast",
+          location: "Hotel Restaurant"
+        },
+        {
+          time: "09:00-14:00",
+          name: "Pre-Wedding Photography",
+          location: "Hotel Gardens"
+        },
+        {
+          time: "14:00-15:30",
+          name: "Lunch",
+          location: "Multi-Cuisine Restaurant",
+          note: "🍽️ Dietary Preferences Apply"
+        },
+        {
+          time: "17:00-19:00",
+          name: "Wedding Ceremony",
+          location: "Grand Lawn",
+          note: "👔 Formal Attire"
+        },
+        {
+          time: "19:00-22:00",
+          name: "Wedding Reception",
+          location: "Grand Ballroom",
+          note: "🍽️ Dietary Preferences Apply"
+        }
+      ]
     },
-    {
-      day: 3,
-      title: "Checkout at 12:00",
-      note: "Hotel checkout time"
-    }
-  ],
 
-  /* ================= DEMO 2 ================= */
-  "demo-2": [
+    /* ================= DEMO 2 ================= */
     {
+      eventId: "demo-2",
       day: 1,
-      title: "Conference Registration at 09:00",
-      note: "Collect badge at Gate 2"
+      date: "2024-11-15",
+      title: "Conference Opening",
+      activities: [
+        {
+          time: "09:00-10:00",
+          name: "Registration",
+          location: "Bangalore International Convention Centre"
+        },
+        {
+          time: "10:00-11:30",
+          name: "Keynote Session",
+          location: "Main Auditorium"
+        },
+        {
+          time: "12:00-13:00",
+          name: "Networking Lunch",
+          location: "Expo Hall",
+          note: "🍽️ Buffet Lunch"
+        }
+      ]
     },
-    {
-      day: 2,
-      title: "Keynote at 10:00",
-      note: "Main Auditorium"
-    },
-    {
-      day: 3,
-      title: "Networking Lunch at 13:00",
-      note: "Business Lounge"
-    }
-  ],
 
-  /* ================= DEMO 3 ================= */
-  "demo-3": [
+    /* ================= DEMO 3 ================= */
     {
+      eventId: "demo-3",
       day: 1,
-      title: "Team Arrival & Beach Welcome",
-      note: "Resort Check-in"
+      date: "2024-10-10",
+      title: "Corporate Team Building",
+      activities: [
+        {
+          time: "09:00-11:00",
+          name: "Icebreaker Activities",
+          location: "Goa Beach Lawn"
+        },
+        {
+          time: "11:30-13:00",
+          name: "Leadership Workshop",
+          location: "Conference Hall A"
+        },
+        {
+          time: "18:00-21:00",
+          name: "Beachside Gala Dinner",
+          location: "Beach Resort",
+          note: "👔 Semi-Formal Attire"
+        }
+      ]
+    }
+
+  ];
+  /* =======================
+     DEMO UPDATES
+  ======================= */
+  static demoUpdates = [
+
+    /* ================= DEMO 1 ================= */
+    {
+      id: 1,
+      eventId: "demo-1",
+      type: "schedule",
+      icon: "ℹ️",
+      severity: "info",
+      date: "12/15/2024",
+      message: "Dinner time updated from 8:00 PM to 8:30 PM",
+      timestamp: Date.now() - 5 * 60 * 1000, // 5 minutes ago
+      read: false
     },
     {
-      day: 2,
-      title: "Corporate Workshop",
-      note: "Conference Hall A"
+      id: 2,
+      eventId: "demo-1",
+      type: "accommodation",
+      icon: "✅",
+      severity: "success",
+      date: "12/14/2024",
+      message: "Room upgrade available for guests in Block A",
+      timestamp: Date.now() - 7200000, // 2 hours ago
+      read: false
     },
     {
-      day: 3,
-      title: "Checkout & Airport Transfer",
-      note: "Pickup at 11:00 AM"
-    }
-  ]
+      id: 3,
+      eventId: "demo-1",
+      type: "activity",
+      icon: "⚠️",
+      severity: "warning",
+      date: "12/13/2024",
+      message: "Pre-wedding photo session rescheduled to 9:00 AM",
+      timestamp: Date.now() - 45 * 60 * 1000, // 45 minutes ago
+      read: false
+    },
+    {
+      id: 4,
+      eventId: "demo-1",
+      type: "transport",
+      icon: "ℹ️",
+      severity: "info",
+      date: "12/12/2024",
+      message: "Airport shuttle schedule confirmed",
+      timestamp: Date.now() - 6 * 60 * 60 * 1000,
+      read: false
+    },
 
-};
-/* =======================
-   DEMO GUEST INFO FOR 3 EVENTS
-======================= */
-static demoGuestInfo = {
-  "demo-1": { // 💍 Sharma–Verma Wedding
-    hotelAssignment: {
-      hotel: "Grand Himalayan Resort",
-      roomNumber: "501",
-      roomType: "Deluxe Double",
-      floor: "Floor 5",
-      checkIn: "12/20/2024, 2:00 PM",
-      checkOut: "12/22/2024, 12:00 PM"
+    /* ================= DEMO 2 ================= */
+    {
+      id: 5,
+      eventId: "demo-2",
+      type: "conference",
+      icon: "ℹ️",
+      severity: "info",
+      date: "11/14/2024",
+      message: "Keynote speaker changed to CTO of Tech India",
+      timestamp: Date.now() - 3600000,
+      read: false
     },
-    dietaryRestrictions: ["Vegetarian", "No Onion", "No Garlic"],
-    diningPreferences: [],
-    specialRequests: {
-      requests: ["Ground floor preferred"],
-      accessibility: ["Wheelchair accessible room"],
-      transportation: ["Airport pickup required"]
+    {
+      id: 6,
+      eventId: "demo-2",
+      type: "logistics",
+      icon: "⚠️",
+      severity: "warning",
+      date: "11/13/2024",
+      message: "Registration desk moved to Gate 2",
+      timestamp: Date.now() - 7200000,
+      read: false
     },
-    emergencyContact: {
-      number: "+91-9876543210"
-    }
-  },
 
-  "demo-2": { // 💻 TechConf 2024
-    hotelAssignment: {
-      hotel: "Bangalore Grand Hotel",
-      roomNumber: "312",
-      roomType: "Executive Suite",
-      floor: "Floor 3",
-      checkIn: "11/15/2024, 10:00 AM",
-      checkOut: "11/17/2024, 11:00 AM"
+    /* ================= DEMO 3 ================= */
+    {
+      id: 7,
+      eventId: "demo-3",
+      type: "activity",
+      icon: "ℹ️",
+      severity: "info",
+      date: "10/09/2024",
+      message: "Beach volleyball moved to 4:00 PM",
+      timestamp: Date.now() - 3600000,
+      read: false
     },
-    dietaryRestrictions: ["Vegetarian"],
-  diningPreferences: [],
-    specialRequests: {
-      requests: ["High floor preferred", "Near conference hall"],
-      accessibility: ["None"],
-      transportation: ["Airport shuttle needed"]
-    },
-    emergencyContact: {
-      number: "+91-9123456789"
+    {
+      id: 8,
+      eventId: "demo-3",
+      type: "transport",
+      icon: "✅",
+      severity: "success",
+      date: "10/08/2024",
+      message: "Airport pickup timings confirmed",
+      timestamp: Date.now() - 7200000,
+      read: false
     }
-  },
 
-  "demo-3": { // 🏢 Annual MICE Retreat
-    hotelAssignment: {
-      hotel: "Goa Beach Resort",
-      roomNumber: "101",
-      roomType: "Sea View Room",
-      floor: "Floor 1",
-      checkIn: "10/10/2024, 3:00 PM",
-      checkOut: "10/13/2024, 12:00 PM"
-    },
-    dietaryRestrictions: ["Vegetarian", "Gluten Free"],
-  diningPreferences: [],
-    specialRequests: {
-      requests: ["Near pool", "Quiet room preferred"],
-      accessibility: ["Wheelchair accessible"],
-      transportation: ["Airport pickup arranged"]
-    },
-    emergencyContact: {
-      number: "+91-9988776655"
-    }
-  }
-};
-static demoInventory = {
-  "demo-1": { // Sharma–Verma Wedding
-    rooms: [
-      { id: "r1", name: "Standard Room", booked: 4, total: 10, floor: "Ground Floor" },
-      { id: "r2", name: "Deluxe Room", booked: 6, total: 8, floor: "High Floor" },
-      { id: "r3", name: "Accessible Room", booked: 3, total: 4, floor: "Ground Floor" }
+  ];
+
+  /* =======================
+     DEMO ITINERARY
+  ======================= */
+  static demoItineraries = {
+
+    /* ================= DEMO 1 ================= */
+    "demo-1": [
+      {
+        day: 1,
+        title: "Arrival at 14:30",
+        note: "Room 501, Deluxe Double"
+      },
+      {
+        day: 2,
+        title: "Wedding Ceremony at 17:00",
+        note: "Formal attire required"
+      },
+      {
+        day: 3,
+        title: "Checkout at 12:00",
+        note: "Hotel checkout time"
+      }
     ],
-    transport: [
-      { id: "t1", name: "Sedan", booked: 1, total: 4, location: "Main Gate" },
-      { id: "t2", name: "SUV", booked: 2, total: 6, location: "Parking Lot A" },
-      { id: "t3", name: "Bus (32-seater)", booked: 31, total: 32, location: "Bus Stand" }
+
+    /* ================= DEMO 2 ================= */
+    "demo-2": [
+      {
+        day: 1,
+        title: "Conference Registration at 09:00",
+        note: "Collect badge at Gate 2"
+      },
+      {
+        day: 2,
+        title: "Keynote at 10:00",
+        note: "Main Auditorium"
+      },
+      {
+        day: 3,
+        title: "Networking Lunch at 13:00",
+        note: "Business Lounge"
+      }
     ],
-    dining: [
-      { id: "d1", name: "Breakfast", booked: 33, total: 80, time: "7:00 AM - 9:00 AM", options: ["Vegetarian", "Non-Veg", "Vegan"] },
-      { id: "d2", name: "Lunch", booked: 36, total: 100, time: "12:30 PM - 2:00 PM", options: ["Vegetarian", "Non-Veg", "Gluten-Free"] },
-      { id: "d3", name: "Dinner", booked: 29, total: 120, time: "7:00 PM - 9:00 PM", options: ["Vegetarian", "Non-Veg", "Halal"] }
-    ],
-    activities: [
-      { id: "a1", name: "Yoga & Meditation", booked: 10, total: 30, time: "6:00 AM", duration: "1 Hour" },
-      { id: "a2", name: "Sightseeing Tour", booked: 37, total: 40, time: "10:00 AM", duration: "3 Hours" },
-      { id: "a3", name: "Adventure Sports", booked: 22, total: 25, time: "2:00 PM", duration: "4 Hours" },
-      { id: "a4", name: "Cultural Evening", booked: 44, total: 100, time: "6:00 PM", duration: "2 Hours" }
+
+    /* ================= DEMO 3 ================= */
+    "demo-3": [
+      {
+        day: 1,
+        title: "Team Arrival & Beach Welcome",
+        note: "Resort Check-in"
+      },
+      {
+        day: 2,
+        title: "Corporate Workshop",
+        note: "Conference Hall A"
+      },
+      {
+        day: 3,
+        title: "Checkout & Airport Transfer",
+        note: "Pickup at 11:00 AM"
+      }
     ]
-  },
 
-  "demo-2": { // Corporate Retreat
-    rooms: [
-      { id: "r1", name: "Executive Suite", booked: 5, total: 10, floor: "Top Floor" },
-      { id: "r2", name: "Standard Room", booked: 8, total: 15, floor: "Ground Floor" }
-    ],
-    transport: [
-      { id: "t1", name: "Minivan", booked: 3, total: 5, location: "Main Entrance" },
-      { id: "t2", name: "Coach Bus (40-seater)", booked: 1, total: 2, location: "Parking Lot B" }
-    ],
-    dining: [
-      { id: "d1", name: "Breakfast", booked: 20, total: 50, time: "7:30 AM - 9:00 AM", options: ["Vegetarian", "Non-Veg"] },
-      { id: "d2", name: "Lunch", booked: 30, total: 60, time: "1:00 PM - 2:30 PM", options: ["Vegetarian", "Non-Veg", "Vegan"] },
-      { id: "d3", name: "Dinner", booked: 25, total: 55, time: "7:00 PM - 9:00 PM", options: ["Vegetarian", "Non-Veg"] }
-    ],
-    activities: [
-      { id: "a1", name: "Team Building", booked: 18, total: 20, time: "10:00 AM", duration: "2 Hours" },
-      { id: "a2", name: "Leadership Workshop", booked: 10, total: 15, time: "3:00 PM", duration: "1.5 Hours" },
-      { id: "a3", name: "Evening Networking", booked: 40, total: 50, time: "6:00 PM", duration: "2 Hours" }
-    ]
-  },
+  };
+  /* =======================
+     DEMO GUEST INFO FOR 3 EVENTS
+  ======================= */
+  static demoGuestInfo = {
+    "demo-1": { // 💍 Sharma–Verma Wedding
+      hotelAssignment: {
+        hotel: "Grand Himalayan Resort",
+        roomNumber: "501",
+        roomType: "Deluxe Double",
+        floor: "Floor 5",
+        checkIn: "12/20/2024, 2:00 PM",
+        checkOut: "12/22/2024, 12:00 PM"
+      },
+      dietaryRestrictions: ["Vegetarian", "No Onion", "No Garlic"],
+      diningPreferences: [],
+      specialRequests: {
+        requests: ["Ground floor preferred"],
+        accessibility: ["Wheelchair accessible room"],
+        transportation: ["Airport pickup required"]
+      },
+      emergencyContact: {
+        number: "+91-9876543210"
+      }
+    },
 
-  "demo-3": { // Small Social Event
-    rooms: [
-      { id: "r1", name: "Garden View Room", booked: 2, total: 5, floor: "Ground Floor" }
-    ],
-    transport: [
-      { id: "t1", name: "SUV", booked: 1, total: 2, location: "Parking Lot C" }
-    ],
-    dining: [
-      { id: "d1", name: "Lunch", booked: 10, total: 20, time: "12:00 PM - 1:30 PM", options: ["Vegetarian", "Non-Veg"] },
-      { id: "d2", name: "Dinner", booked: 8, total: 15, time: "7:00 PM - 8:30 PM", options: ["Vegetarian", "Non-Veg"] }
-    ],
-    activities: [
-      { id: "a1", name: "Interactive Games", booked: 5, total: 10, time: "2:00 PM", duration: "1 Hour" },
-      { id: "a2", name: "Music & Dance", booked: 12, total: 20, time: "6:00 PM", duration: "2 Hours" }
-    ]
-  }
-};
-/* =======================
-   GET INVENTORY BY EVENT ID
-======================= */
-static getInventoryByEventId(eventId) {
-  // ✅ Demo events
-  if (eventId.startsWith("demo-")) {
-    return this.demoInventory[eventId] || {
+    "demo-2": { // 💻 TechConf 2024
+      hotelAssignment: {
+        hotel: "Bangalore Grand Hotel",
+        roomNumber: "312",
+        roomType: "Executive Suite",
+        floor: "Floor 3",
+        checkIn: "11/15/2024, 10:00 AM",
+        checkOut: "11/17/2024, 11:00 AM"
+      },
+      dietaryRestrictions: ["Vegetarian"],
+      diningPreferences: [],
+      specialRequests: {
+        requests: ["High floor preferred", "Near conference hall"],
+        accessibility: ["None"],
+        transportation: ["Airport shuttle needed"]
+      },
+      emergencyContact: {
+        number: "+91-9123456789"
+      }
+    },
+
+    "demo-3": { // 🏢 Annual MICE Retreat
+      hotelAssignment: {
+        hotel: "Goa Beach Resort",
+        roomNumber: "101",
+        roomType: "Sea View Room",
+        floor: "Floor 1",
+        checkIn: "10/10/2024, 3:00 PM",
+        checkOut: "10/13/2024, 12:00 PM"
+      },
+      dietaryRestrictions: ["Vegetarian", "Gluten Free"],
+      diningPreferences: [],
+      specialRequests: {
+        requests: ["Near pool", "Quiet room preferred"],
+        accessibility: ["Wheelchair accessible"],
+        transportation: ["Airport pickup arranged"]
+      },
+      emergencyContact: {
+        number: "+91-9988776655"
+      }
+    }
+  };
+  static demoInventory = {
+    "demo-1": { // Sharma–Verma Wedding
+      rooms: [
+        { id: "r1", name: "Standard Room", booked: 4, total: 10, floor: "Ground Floor" },
+        { id: "r2", name: "Deluxe Room", booked: 6, total: 8, floor: "High Floor" },
+        { id: "r3", name: "Accessible Room", booked: 3, total: 4, floor: "Ground Floor" }
+      ],
+      transport: [
+        { id: "t1", name: "Sedan", booked: 1, total: 4, location: "Main Gate" },
+        { id: "t2", name: "SUV", booked: 2, total: 6, location: "Parking Lot A" },
+        { id: "t3", name: "Bus (32-seater)", booked: 31, total: 32, location: "Bus Stand" }
+      ],
+      dining: [
+        { id: "d1", name: "Breakfast", booked: 33, total: 80, time: "7:00 AM - 9:00 AM", options: ["Vegetarian", "Non-Veg", "Vegan"] },
+        { id: "d2", name: "Lunch", booked: 36, total: 100, time: "12:30 PM - 2:00 PM", options: ["Vegetarian", "Non-Veg", "Gluten-Free"] },
+        { id: "d3", name: "Dinner", booked: 29, total: 120, time: "7:00 PM - 9:00 PM", options: ["Vegetarian", "Non-Veg", "Halal"] }
+      ],
+      activities: [
+        { id: "a1", name: "Yoga & Meditation", booked: 10, total: 30, time: "6:00 AM", duration: "1 Hour" },
+        { id: "a2", name: "Sightseeing Tour", booked: 37, total: 40, time: "10:00 AM", duration: "3 Hours" },
+        { id: "a3", name: "Adventure Sports", booked: 22, total: 25, time: "2:00 PM", duration: "4 Hours" },
+        { id: "a4", name: "Cultural Evening", booked: 44, total: 100, time: "6:00 PM", duration: "2 Hours" }
+      ]
+    },
+
+    "demo-2": { // Corporate Retreat
+      rooms: [
+        { id: "r1", name: "Executive Suite", booked: 5, total: 10, floor: "Top Floor" },
+        { id: "r2", name: "Standard Room", booked: 8, total: 15, floor: "Ground Floor" }
+      ],
+      transport: [
+        { id: "t1", name: "Minivan", booked: 3, total: 5, location: "Main Entrance" },
+        { id: "t2", name: "Coach Bus (40-seater)", booked: 1, total: 2, location: "Parking Lot B" }
+      ],
+      dining: [
+        { id: "d1", name: "Breakfast", booked: 20, total: 50, time: "7:30 AM - 9:00 AM", options: ["Vegetarian", "Non-Veg"] },
+        { id: "d2", name: "Lunch", booked: 30, total: 60, time: "1:00 PM - 2:30 PM", options: ["Vegetarian", "Non-Veg", "Vegan"] },
+        { id: "d3", name: "Dinner", booked: 25, total: 55, time: "7:00 PM - 9:00 PM", options: ["Vegetarian", "Non-Veg"] }
+      ],
+      activities: [
+        { id: "a1", name: "Team Building", booked: 18, total: 20, time: "10:00 AM", duration: "2 Hours" },
+        { id: "a2", name: "Leadership Workshop", booked: 10, total: 15, time: "3:00 PM", duration: "1.5 Hours" },
+        { id: "a3", name: "Evening Networking", booked: 40, total: 50, time: "6:00 PM", duration: "2 Hours" }
+      ]
+    },
+
+    "demo-3": { // Small Social Event
+      rooms: [
+        { id: "r1", name: "Garden View Room", booked: 2, total: 5, floor: "Ground Floor" }
+      ],
+      transport: [
+        { id: "t1", name: "SUV", booked: 1, total: 2, location: "Parking Lot C" }
+      ],
+      dining: [
+        { id: "d1", name: "Lunch", booked: 10, total: 20, time: "12:00 PM - 1:30 PM", options: ["Vegetarian", "Non-Veg"] },
+        { id: "d2", name: "Dinner", booked: 8, total: 15, time: "7:00 PM - 8:30 PM", options: ["Vegetarian", "Non-Veg"] }
+      ],
+      activities: [
+        { id: "a1", name: "Interactive Games", booked: 5, total: 10, time: "2:00 PM", duration: "1 Hour" },
+        { id: "a2", name: "Music & Dance", booked: 12, total: 20, time: "6:00 PM", duration: "2 Hours" }
+      ]
+    }
+  };
+  /* =======================
+     GET INVENTORY BY EVENT ID
+  ======================= */
+  static getInventoryByEventId(eventId) {
+    // ✅ Demo events
+    if (eventId.startsWith("demo-")) {
+      return this.demoInventory[eventId] || {
+        rooms: [],
+        transport: [],
+        dining: [],
+        activities: []
+      };
+    }
+
+    // TODO: For real events, fetch from backend API
+    return {
       rooms: [],
       transport: [],
       dining: [],
       activities: []
     };
   }
-
-  // TODO: For real events, fetch from backend API
-  return {
-    rooms: [],
-    transport: [],
-    dining: [],
-    activities: []
-  };
-}
   /* =======================
      BACKEND FETCH
   ======================= */
@@ -1168,13 +1168,13 @@ static getInventoryByEventId(eventId) {
     return data.data.map(e => ({
       ...e,
       id: e._id,// Ensure we map MongoDB's _id to id for easier handling
-  name: e.name,
-  location: e.location,
-  guestCount: e.guestCount,  // Ensure fields are correctly mapped
-  startDate: new Date(e.startDate),  // Ensure valid Date object
-  endDate: new Date(e.endDate),      // Ensure valid Date object
-  status: e.status,
-  isDemo: false   // 👈 ADD THIS
+      name: e.name,
+      location: e.location,
+      guestCount: e.guestCount,  // Ensure fields are correctly mapped
+      startDate: new Date(e.startDate),  // Ensure valid Date object
+      endDate: new Date(e.endDate),      // Ensure valid Date object
+      status: e.status,
+      isDemo: false   // 👈 ADD THIS
     }));
   }
 
@@ -1186,7 +1186,7 @@ static getInventoryByEventId(eventId) {
 
     try {
       // ADD THIS LINE TO LOG THE URL BEING CALLED
-    console.log("Fetching events from:", BASE_URL);
+      console.log("Fetching events from:", BASE_URL);
       backendEvents = await this.fetchBackendEvents();
     } catch (err) {
       console.warn("Backend unavailable, demo events only");
@@ -1226,88 +1226,88 @@ static getInventoryByEventId(eventId) {
 
     return await res.json();
   }
-/* =======================
-   UPDATE EVENT (BACKEND)
-======================= */
-static async updateEvent(id, eventData) {
-  const authUser = JSON.parse(localStorage.getItem("auth_user"));
-  const token = authUser?.token;
+  /* =======================
+     UPDATE EVENT (BACKEND)
+  ======================= */
+  static async updateEvent(id, eventData) {
+    const authUser = JSON.parse(localStorage.getItem("auth_user"));
+    const token = authUser?.token;
 
-  if (!token) {
-    throw new Error("No auth token found");
-  }
-
-  const res = await fetch(`${BASE_URL}/api/events/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(eventData)
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to update event");
-  }
-
-  return await res.json();
-}
-
-/* =======================
-   GET SINGLE EVENT
-======================= */
-static async getEventById(id) {
-  // ✅ If it's a demo event → return from frontend array
-  if (id.startsWith("demo-")) {
-    return this.demoEvents.find(event => event.id === id);
-  }
-  const authUser = JSON.parse(localStorage.getItem("auth_user"));
-  const token = authUser?.token;
-
-  if (!token) {
-    throw new Error("No auth token found");
-  }
-
-  const res = await fetch(`${BASE_URL}/api/events/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
+    if (!token) {
+      throw new Error("No auth token found");
     }
-  });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to fetch event");
+    const res = await fetch(`${BASE_URL}/api/events/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(eventData)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to update event");
+    }
+
+    return await res.json();
   }
 
-  const data = await res.json();
+  /* =======================
+     GET SINGLE EVENT
+  ======================= */
+  static async getEventById(id) {
+    // ✅ If it's a demo event → return from frontend array
+    if (id.startsWith("demo-")) {
+      return this.demoEvents.find(event => event.id === id);
+    }
+    const authUser = JSON.parse(localStorage.getItem("auth_user"));
+    const token = authUser?.token;
 
-  return {
-    ...data.data,
-    id: data.data._id
-  };
-}
+    if (!token) {
+      throw new Error("No auth token found");
+    }
 
-/* =======================
-   GET SCHEDULE
-======================= */
-static getScheduleByEventId(eventId) {
-  return this.demoSchedules.filter(s => s.eventId === eventId);
-}
+    const res = await fetch(`${BASE_URL}/api/events/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-/* =======================
-   GET UPDATES
-======================= */
-static getUpdatesByEventId(eventId) {
-  return this.demoUpdates.filter(u => u.eventId === eventId);
-}
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Failed to fetch event");
+    }
 
-/* =======================
-   GET ITINERARY
-======================= */
-static getItineraryByEventId(eventId) {
-  return this.demoItineraries[eventId] || [];
-}
+    const data = await res.json();
+
+    return {
+      ...data.data,
+      id: data.data._id
+    };
+  }
+
+  /* =======================
+     GET SCHEDULE
+  ======================= */
+  static getScheduleByEventId(eventId) {
+    return this.demoSchedules.filter(s => s.eventId === eventId);
+  }
+
+  /* =======================
+     GET UPDATES
+  ======================= */
+  static getUpdatesByEventId(eventId) {
+    return this.demoUpdates.filter(u => u.eventId === eventId);
+  }
+
+  /* =======================
+     GET ITINERARY
+  ======================= */
+  static getItineraryByEventId(eventId) {
+    return this.demoItineraries[eventId] || [];
+  }
   /* =======================
      STATS
   ======================= */

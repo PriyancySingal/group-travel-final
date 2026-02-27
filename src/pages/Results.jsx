@@ -13,7 +13,7 @@
 //   const defaultCheckOut = new Date(defaultCheckIn.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 nights
 
 //   useEffect(() => {
-//     fetch("http://localhost:5000/api/hotels", {
+//     fetch("http://localhost:5001/api/hotels", {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
 //       body: JSON.stringify({
@@ -38,7 +38,7 @@
 //   // Calculate preview pricing for a hotel
 //   const calculatePreviewPricing = (hotel) => {
 //     if (!hotel || !hotel.Price) return null;
-    
+
 //     return calculateDynamicPricing(hotel, {
 //       checkInDate: defaultCheckIn.toISOString().split('T')[0],
 //       checkOutDate: defaultCheckOut.toISOString().split('T')[0],
@@ -50,7 +50,7 @@
 //   const handleAddToGroupPlan = (hotel) => {
 //     // Calculate pricing before navigating
 //     const pricing = calculatePreviewPricing(hotel);
-    
+
 //     // Navigate with hotel and pricing data
 //     navigate("/group-dashboard", { 
 //       state: { 
@@ -91,7 +91,7 @@
 //       {/* LIVE RESULTS */}
 //       {hotels.map((h, i) => {
 //         const preview = calculatePreviewPricing(h);
-        
+
 //         return (
 //           <div 
 //             key={i} 
@@ -108,7 +108,7 @@
 //                   ₹{h.Price?.TotalPrice?.toLocaleString('en-IN')} <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>(base price)</span>
 //                 </p>
 //               </div>
-              
+
 //               {/* Live Pricing Preview */}
 //               {preview && (
 //                 <div style={{ 
@@ -158,7 +158,7 @@
 
 //           {demoHotels.map((h, i) => {
 //             const preview = calculatePreviewPricing(h);
-            
+
 //             return (
 //               <div key={i} className="glass-card" style={{ marginTop: "16px" }}>
 //                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -169,7 +169,7 @@
 //                       ₹{h.Price.TotalPrice.toLocaleString('en-IN')} <span style={{ fontSize: "0.8rem", opacity: 0.7 }}>(base price)</span>
 //                     </p>
 //                   </div>
-                  
+
 //                   {/* Pricing Preview */}
 //                   {preview && (
 //                     <div style={{ 

@@ -103,6 +103,44 @@ Your Guest Engagement Platform comes with 5 comprehensive guides:
 
 ---
 
+## 🤖 Real-Time AI Prediction System (NEW!)
+
+Three new guides for real-time AI insights:
+
+### 6. **REALTIME_AI_SETUP.md**
+**Best for:** Technical setup, API reference, architecture
+**Contains:**
+- Backend SSE endpoint documentation
+- MongoDB change stream integration
+- Frontend SSE subscription patterns
+- Authentication for streaming
+- Testing procedures
+- Troubleshooting guide
+
+### 7. **REALTIME_AI_IMPLEMENTATION.md**
+**Best for:** Feature overview, implementation summary, next steps
+**Contains:**
+- What was implemented (completed tasks checklist)
+- Data flow diagrams
+- Feature matrix (5 AI prediction categories)
+- Modified files list
+- Production considerations
+- Enhancement roadmap
+
+### 8. **REALTIME_AI_QUICK_REFERENCE.md**
+**Best for:** Quick lookup, API endpoints, verification
+**Contains:**
+- Complete feature checklist
+- Testing guide (step-by-step)
+- API endpoints with examples
+- Configuration options
+- Troubleshooting quick guide
+- Success indicators
+
+**↳ Start with Quick Reference, dive into Setup for details**
+
+---
+
 ## 📁 What's In The Codebase
 
 ### Services (Ready to use)
@@ -142,16 +180,19 @@ src/pages/Event/
 
 → Read: **GUEST_ENGAGEMENT_README.md**
 → Then: **IMPLEMENTATION_OVERVIEW.md** (for visuals)
+→ Also: **REALTIME_AI_QUICK_REFERENCE.md** (for AI features)
 
 ### "I want to add this to my app NOW"
 
 → Read: **SETUP_COPY_PASTE.md**
 → Estimate: 1-2 hours
+→ For AI: **REALTIME_AI_QUICK_REFERENCE.md** (Testing guide)
 
 ### "I'm building the backend APIs"
 
 → Read: **GUEST_ENGAGEMENT_INTEGRATION.md**
 → Then: **GUEST_ENGAGEMENT_PLATFORM_GUIDE.md** (for API reference)
+→ New: **REALTIME_AI_SETUP.md** (for AI streaming endpoints)
 
 ### "I want to customize features"
 

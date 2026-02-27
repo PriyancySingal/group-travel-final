@@ -79,10 +79,10 @@ Click "📊 Generate Report" to create comprehensive summary (check browser cons
 
 The backend endpoints are already implemented. Make sure:
 
-1. Backend server is running on `http://localhost:5000`
+1. Backend server is running on `http://localhost:5001`
 2. All API endpoints are working:
    ```bash
-   curl http://localhost:5000/api/guests
+   curl http://localhost:5001/api/guests
    ```
 
 #### Step 2: Switch to API Service (Optional)
@@ -106,7 +106,7 @@ import GuestPreferencesAPI as GuestPreferencesService from "./GuestPreferencesAP
 Create/update `.env` file in root:
 
 ```
-REACT_APP_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:5001
 ```
 
 #### Step 4: Restart Development Server

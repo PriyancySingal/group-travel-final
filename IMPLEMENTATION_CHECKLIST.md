@@ -31,7 +31,7 @@ This checklist helps you integrate Guest Profiles & Preferences Management with 
 
 ### Backend Setup (If Using API)
 
-- [ ] Backend server running on port 5000
+- [ ] Backend server running on port 5001
 - [ ] CORS configured for frontend origin
 - [ ] `/api/guests` endpoints responding
 - [ ] `/api/alerts` endpoints responding

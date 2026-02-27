@@ -4,6 +4,8 @@
  * Implements real-time update notifications
  */
 
+import { v4 as uuidv4 } from "uuid";
+
 const STORAGE_KEY = "group_travel_guests";
 const ALERTS_KEY = "group_travel_alerts";
 
@@ -37,7 +39,7 @@ class GuestPreferencesService {
     try {
       const guests = this.getAllGuests();
       const existingIndex = guests.findIndex(g => g.id === guestData.id);
-      
+
       let isUpdate = false;
       if (existingIndex >= 0) {
         const oldGuest = guests[existingIndex];
@@ -162,13 +164,13 @@ class GuestPreferencesService {
     try {
       const alerts = this.getAllAlerts();
       const alert = {
-        id: Date.now(),
+        id: uuidv4(),
         timestamp: new Date().toISOString(),
         ...alertData
       };
 
       alerts.unshift(alert); // Add to beginning for newest first
-      
+
       // Keep only last 50 alerts
       if (alerts.length > 50) {
         alerts.pop();

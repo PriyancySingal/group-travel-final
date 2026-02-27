@@ -1,15 +1,17 @@
 /* Guest Profile Form Styles */
 .guest-profile-form-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 1000;
+  align-items: flex-start;
+
+  padding: 40px 20px;
+  overflow-y: auto;
+
+  z-index: 9999;
   animation: fadeIn 0.3s ease-in;
 }
 
@@ -17,27 +19,137 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 .guest-profile-form-container {
+  width: 95%;
+  max-width: 800px;
+  height: 85vh;
+
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 700px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   color: white;
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .guest-profile-form-container h2 {
-  margin-top: 0;
-  margin-bottom: 24px;
+  margin: 0;
+  padding: 32px 32px 16px;
   font-size: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.guest-profile-form-container form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.step-indicator {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-step {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.form-navigation {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: space-between;
+}
+
+.form-navigation button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: white;
+}
+
+.btn-next {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+}
+
+.btn-next:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-submit {
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
+  flex: 1;
+}
+
+.btn-submit:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .form-section {
@@ -208,9 +320,23 @@
 }
 
 @media (max-width: 640px) {
+  .guest-profile-form-overlay {
+    padding: 20px 10px;
+  }
+
   .guest-profile-form-container {
-    padding: 24px;
-    max-width: 95%;
+    width: 100%;
+    min-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .guest-profile-form-container h2 {
+    padding: 24px 20px 16px;
+    font-size: 24px;
+  }
+
+  .guest-profile-form-container form {
+    padding: 0 20px 20px;
   }
 
   .form-row {

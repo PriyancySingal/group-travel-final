@@ -84,7 +84,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ai-loader p {
@@ -147,8 +149,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .tab-content h2 {
@@ -980,6 +987,294 @@
   font-weight: 500;
 }
 
+/* Event Energy Hero Section */
+.event-energy-hero {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.energy-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.energy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.energy-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.trend-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.trend-badge.increasing {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.trend-badge.decreasing {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.trend-badge.stable {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.energy-score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.energy-number {
+  font-size: 72px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.energy-percent {
+  font-size: 32px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.energy-bar-large {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.energy-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.energy-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.energy-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.energy-stat.highlight {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.energy-stat.warning {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.energy-stat .stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #e0e7ff;
+}
+
+.energy-stat.highlight .stat-value {
+  color: #34d399;
+}
+
+.energy-stat.warning .stat-value {
+  color: #fca5a5;
+}
+
+.energy-stat .stat-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* Risk Panel */
+.risk-panel {
+  margin-bottom: 40px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 16px;
+}
+
+.risk-panel h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fca5a5;
+}
+
+.risk-guests-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.risk-guest-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.risk-guest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.risk-guest-header .guest-name {
+  font-weight: 700;
+  color: white;
+}
+
+.risk-level {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.risk-level.high {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.risk-level.medium {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
+.risk-level.low {
+  background: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.risk-factors {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.risk-factor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.risk-type {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.risk-action {
+  font-size: 12px;
+  color: #fca5a5;
+}
+
+.current-engagement {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.engagement-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.engagement-value {
+  font-weight: 700;
+  color: #e0e7ff;
+}
+
+/* Current Engagement Badge in Prediction Cards */
+.current-engagement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.engagement-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.engagement-badge.high {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.engagement-badge.medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.engagement-badge.low {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.prediction-card.has-risk {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ai-insights-container {
@@ -1019,6 +1314,18 @@
   .sentiment-summary {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .event-energy-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-number {
+    font-size: 48px;
+  }
+
+  .risk-guests-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1035,5 +1342,9 @@
   .networking-card .card-header,
   .pairing-header {
     flex-direction: column;
+  }
+
+  .energy-number {
+    font-size: 36px;
   }
 }

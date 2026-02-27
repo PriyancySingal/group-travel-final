@@ -1,5 +1,6 @@
 import Guest from '../models/Guest.js';
 import { asyncHandler, AppError } from '../middleware/errorHandler.js';
+import mongoose from 'mongoose';
 
 // @desc    Create new guest
 // @route   POST /api/guests
@@ -7,7 +8,7 @@ import { asyncHandler, AppError } from '../middleware/errorHandler.js';
 export const createGuest = asyncHandler(async (req, res) => {
   const guest = await Guest.create({
     ...req.body,
-    userId: req.user._id
+    userId: req.user._id === 'demo' ? new mongoose.Types.ObjectId() : req.user._id
   });
 
   res.status(201).json({

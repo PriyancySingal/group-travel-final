@@ -46,7 +46,8 @@ const GroupDashboard = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/pricing/calculate", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const response = await fetch(`${API_URL}/api/pricing/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -115,11 +116,11 @@ const GroupDashboard = () => {
   const addMember = () => {
     if (!newMemberName) return;
     const newId = Math.max(...members.map(m => m.id), 0) + 1;
-    setMembers([...members, { 
+    setMembers([...members, {
       id: newId,
-      name: newMemberName, 
-      status: "Pending", 
-      email: newMemberEmail || `${newMemberName.toLowerCase()}@email.com` 
+      name: newMemberName,
+      status: "Pending",
+      email: newMemberEmail || `${newMemberName.toLowerCase()}@email.com`
     }]);
     setNewMemberName("");
     setNewMemberEmail("");
@@ -170,7 +171,7 @@ const GroupDashboard = () => {
   return (
     <div className="container fade-in" style={{ marginTop: "60px", maxWidth: "950px" }}>
       {/* Header Card */}
-      <div className="glass-card" style={{ 
+      <div className="glass-card" style={{
         background: "linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%)",
         border: "1px solid rgba(168, 85, 247, 0.4)"
       }}>
@@ -192,7 +193,7 @@ const GroupDashboard = () => {
 
       {/* Trip Details & Pricing Row */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
-        
+
         {/* Trip Details */}
         <div className="glass-card">
           <h3 style={{ margin: "0 0 16px", color: "#f472b6", fontSize: "1.1rem" }}>📅 Trip Details</h3>
@@ -246,7 +247,7 @@ const GroupDashboard = () => {
                   fontSize: "0.95rem"
                 }}
               >
-                {[1,2,3,4,5].map(n => <option key={n} value={n} style={{ color: "black" }}>{n} Room{n > 1 ? 's' : ''}</option>)}
+                {[1, 2, 3, 4, 5].map(n => <option key={n} value={n} style={{ color: "black" }}>{n} Room{n > 1 ? 's' : ''}</option>)}
               </select>
             </div>
           </div>
@@ -256,7 +257,7 @@ const GroupDashboard = () => {
         </div>
 
         {/* Dynamic Pricing Card */}
-        <div className="glass-card" style={{ 
+        <div className="glass-card" style={{
           background: loading ? "rgba(255,255,255,0.03)" : "linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(5, 150, 105, 0.18) 100%)",
           border: "1px solid rgba(16, 185, 129, 0.3)"
         }}>
@@ -281,7 +282,7 @@ const GroupDashboard = () => {
                   <span style={{ opacity: 0.7 }}>Service Fee (5%)</span>
                   <span>₹{pricing.breakdown.serviceFee.toLocaleString('en-IN')}</span>
                 </div>
-                
+
                 {/* Discounts */}
                 {pricing.discounts?.earlyBird?.applies && (
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#34d399" }}>
@@ -298,12 +299,12 @@ const GroupDashboard = () => {
               </div>
 
               {/* Total */}
-              <div style={{ 
-                borderTop: "1px solid rgba(255,255,255,0.15)", 
-                paddingTop: "12px", 
+              <div style={{
+                borderTop: "1px solid rgba(255,255,255,0.15)",
+                paddingTop: "12px",
                 marginTop: "8px",
-                display: "flex", 
-                justifyContent: "space-between", 
+                display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center"
               }}>
                 <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>Total</span>
@@ -313,10 +314,10 @@ const GroupDashboard = () => {
               </div>
 
               {/* Per Person */}
-              <div style={{ 
-                marginTop: "10px", 
-                padding: "10px", 
-                background: "rgba(52, 211, 153, 0.15)", 
+              <div style={{
+                marginTop: "10px",
+                padding: "10px",
+                background: "rgba(52, 211, 153, 0.15)",
                 borderRadius: "8px",
                 textAlign: "center",
                 fontSize: "1rem"
@@ -355,14 +356,14 @@ const GroupDashboard = () => {
 
       {/* Tab Content */}
       <div className="glass-card" style={{ marginTop: "20px" }}>
-        
+
         {/* Members Tab */}
         {activeTab === 'members' && (
           <>
             {/* Add Member Form */}
-            <div style={{ 
-              padding: "16px", 
-              background: "rgba(99, 102, 241, 0.1)", 
+            <div style={{
+              padding: "16px",
+              background: "rgba(99, 102, 241, 0.1)",
               borderRadius: "10px",
               marginBottom: "20px"
             }}>
@@ -398,8 +399,8 @@ const GroupDashboard = () => {
                     fontSize: "0.95rem"
                   }}
                 />
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={addMember}
                   style={{ padding: "10px 20px" }}
                 >
@@ -442,7 +443,7 @@ const GroupDashboard = () => {
                     <div style={{ fontSize: "0.8rem", opacity: 0.6 }}>{m.email}</div>
                   </div>
                 </div>
-                
+
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{
                     padding: "4px 10px",
@@ -453,13 +454,13 @@ const GroupDashboard = () => {
                   }}>
                     {m.status === "Confirmed" ? "✓ Confirmed" : "⏳ Pending"}
                   </span>
-                  
+
                   {splitType === "custom" && (
                     <span style={{ fontSize: "0.9rem", color: "#a78bfa" }}>
                       ₹{getDisplayAmount(i).toLocaleString('en-IN')}
                     </span>
                   )}
-                  
+
                   {m.status === "Pending" ? (
                     <button
                       className="btn-primary"
@@ -494,7 +495,7 @@ const GroupDashboard = () => {
         {activeTab === 'pricing' && pricing && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <h4 style={{ margin: "0", color: "#34d399" }}>📊 Detailed Price Breakdown</h4>
-            
+
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
               <div style={{ padding: "14px", background: "rgba(255,255,255,0.05)", borderRadius: "8px" }}>
                 <div style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "4px" }}>Base Price (per night)</div>
@@ -513,13 +514,13 @@ const GroupDashboard = () => {
             {/* Discount Info */}
             <div style={{ padding: "16px", background: "rgba(251, 191, 36, 0.1)", borderRadius: "8px", border: "1px solid rgba(251, 191, 36, 0.3)" }}>
               <h4 style={{ margin: "0 0 12px", color: "#fbbf24" }}>🏷️ Available Discounts</h4>
-              
+
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span>🦅 Early Bird (book 30+ days ahead)</span>
                   <span style={{ color: pricing.discounts?.earlyBird?.applies ? "#34d399" : "#ef4444" }}>
-                    {pricing.discounts?.earlyBird?.applies 
-                      ? `✓ Applied (-₹${pricing.discounts.earlyBird.amount.toLocaleString('en-IN')})` 
+                    {pricing.discounts?.earlyBird?.applies
+                      ? `✓ Applied (-₹${pricing.discounts.earlyBird.amount.toLocaleString('en-IN')})`
                       : `${pricing.discounts?.earlyBird?.daysUntil || 0} days until check-in`
                     }
                   </span>
@@ -527,8 +528,8 @@ const GroupDashboard = () => {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span>👥 Group Discount (5+ members)</span>
                   <span style={{ color: pricing.discounts?.group?.applies ? "#34d399" : "#ef4444" }}>
-                    {pricing.discounts?.group?.applies 
-                      ? `✓ Applied (-₹${pricing.discounts.group.amount.toLocaleString('en-IN')})` 
+                    {pricing.discounts?.group?.applies
+                      ? `✓ Applied (-₹${pricing.discounts.group.amount.toLocaleString('en-IN')})`
                       : `${(pricing.discounts?.group?.threshold || 5) - (pricing.discounts?.group?.memberCount || 0)} more needed`
                     }
                   </span>
@@ -537,9 +538,9 @@ const GroupDashboard = () => {
             </div>
 
             {pricing.breakdown?.totalDiscount > 0 && (
-              <div style={{ 
-                padding: "14px", 
-                background: "rgba(52, 211, 153, 0.15)", 
+              <div style={{
+                padding: "14px",
+                background: "rgba(52, 211, 153, 0.15)",
                 borderRadius: "8px",
                 textAlign: "center"
               }}>
@@ -556,7 +557,7 @@ const GroupDashboard = () => {
         {activeTab === 'split' && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <h4 style={{ margin: "0", color: "#a78bfa" }}>💳 Payment Split Options</h4>
-            
+
             {/* Split Type Buttons */}
             <div style={{ display: "flex", gap: "12px" }}>
               <button
@@ -593,9 +594,9 @@ const GroupDashboard = () => {
 
             {/* Equal Split Display */}
             {splitType === "equal" && (
-              <div style={{ 
-                padding: "20px", 
-                background: "rgba(52, 211, 153, 0.1)", 
+              <div style={{
+                padding: "20px",
+                background: "rgba(52, 211, 153, 0.1)",
                 borderRadius: "10px",
                 textAlign: "center"
               }}>
@@ -651,14 +652,14 @@ const GroupDashboard = () => {
                   </div>
                 ))}
                 {Object.keys(customAmounts).length > 0 && (
-                  <div style={{ 
-                    padding: "12px", 
-                    background: "rgba(255,255,255,0.05)", 
+                  <div style={{
+                    padding: "12px",
+                    background: "rgba(255,255,255,0.05)",
                     borderRadius: "8px",
                     textAlign: "right",
                     fontSize: "0.9rem"
                   }}>
-                    Total: ₹{Object.values(customAmounts).reduce((a, b) => a + (b || 0), 0).toLocaleString('en-IN')} 
+                    Total: ₹{Object.values(customAmounts).reduce((a, b) => a + (b || 0), 0).toLocaleString('en-IN')}
                     / ₹{totalCost.toLocaleString('en-IN')}
                   </div>
                 )}
@@ -669,31 +670,31 @@ const GroupDashboard = () => {
       </div>
 
       {/* Booking Status & Action */}
-      <div className="glass-card" style={{ 
+      <div className="glass-card" style={{
         marginTop: "20px",
-        background: members.every((m) => m.status === "Confirmed") 
+        background: members.every((m) => m.status === "Confirmed")
           ? "linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%)"
           : "rgba(255,255,255,0.03)"
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
           <div>
             <h3 style={{ margin: "0 0 8px", color: members.every((m) => m.status === "Confirmed") ? "#34d399" : "#fbbf24" }}>
-              {members.every((m) => m.status === "Confirmed") 
-                ? "✅ All members confirmed - Ready to book!" 
+              {members.every((m) => m.status === "Confirmed")
+                ? "✅ All members confirmed - Ready to book!"
                 : "⏳ Waiting for all members to confirm"}
             </h3>
             <p style={{ margin: 0, opacity: 0.7, fontSize: "0.9rem" }}>
               {members.filter(m => m.status === "Confirmed").length} of {members.length} confirmed
             </p>
           </div>
-          
+
           <button
             className="btn-primary"
-            style={{ 
+            style={{
               padding: "14px 32px",
               fontSize: "1.1rem",
-              background: members.every((m) => m.status === "Confirmed") 
-                ? "linear-gradient(135deg, #34d399, #059669)" 
+              background: members.every((m) => m.status === "Confirmed")
+                ? "linear-gradient(135deg, #34d399, #059669)"
                 : "rgba(255,255,255,0.1)"
             }}
             onClick={() =>

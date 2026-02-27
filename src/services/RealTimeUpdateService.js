@@ -75,7 +75,7 @@ class RealTimeUpdateService {
   static async pollEventUpdates(eventId, onUpdate) {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5001"}/api/events/${eventId}/updates?since=${this.getLastUpdateTime(eventId)}`
+        `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5001"}/api/events/${eventId}/updates?since=${this.getLastUpdateTime(eventId)}`
       );
 
       if (!response.ok) throw new Error("Failed to fetch updates");

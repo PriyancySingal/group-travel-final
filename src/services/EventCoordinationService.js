@@ -3,7 +3,7 @@
 // // //  * Manages event microsites, itineraries, schedules, and personalized guest information
 // // //  * Handles centralized coordination for group events (weddings, conferences, MICE)
 // // //  */
-// // // const BASE_URL = "http://localhost:5001/api/events";
+// // // const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api/events";
 
 // // // class EventCoordinationService {
 // // //   static events = [

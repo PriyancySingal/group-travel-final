@@ -13,7 +13,7 @@
 //   const defaultCheckOut = new Date(defaultCheckIn.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 nights
 
 //   useEffect(() => {
-//     fetch("http://localhost:5001/api/hotels", {
+//     fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:5001"}/api/hotels`, {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
 //       body: JSON.stringify({

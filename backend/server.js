@@ -759,7 +759,10 @@ const app = express();
 /* ------------------ MIDDLEWARE ------------------ */
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://group-travel-final.vercel.app"
+  ],
   credentials: true
 }));
 

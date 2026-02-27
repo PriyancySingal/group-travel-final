@@ -6,40 +6,38 @@ const ParticipantCard = ({ participant }) => {
   const imgRef = useRef(null);
 
   useEffect(() => {
-    setParticipantImageLoading(true); // Always start with loading true when image changes
+    setParticipantImageLoading(true); // Reset loading state when image changes
 
-    const img = imgRef.current;
-    if (!img) return;
+    // Fallback timeout to prevent shimmer from getting stuck (5 seconds)
+    const timer = setTimeout(() => setParticipantImageLoading(false), 5000);
+    return () => clearTimeout(timer);
+  }, [participant.image]);
 
-    if (img.complete) {
-      // Image is already loaded (cached)
+  const handleImageLoad = () => {
+    setParticipantImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setParticipantImageLoading(false);
+  };
+
+  // Ref callback to check if image is already loaded
+  const setImgRef = (img) => {
+    imgRef.current = img;
+    if (img && img.complete) {
       setParticipantImageLoading(false);
-    } else {
-      // Image is still loading, set up handlers
-      const handleLoad = () => setParticipantImageLoading(false);
-      const handleError = () => setParticipantImageLoading(false);
-
-      img.addEventListener('load', handleLoad);
-      img.addEventListener('error', handleError);
-
-      // Fallback timeout to prevent shimmer from getting stuck (increased to 5 seconds)
-      const timer = setTimeout(() => setParticipantImageLoading(false), 5000);
-
-      return () => {
-        img.removeEventListener('load', handleLoad);
-        img.removeEventListener('error', handleError);
-        clearTimeout(timer);
-      };
     }
-  }, [participant.image]); // Depend on participant.image to re-trigger when image changes
+  };
 
   return (
     <div className="participant-card">
       {participantImageLoading && <div className="shimmer"></div>}
       <img
-        ref={imgRef}
+        ref={setImgRef}
         src={participant.image}
         alt={participant.name}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
       />
     </div>
   );

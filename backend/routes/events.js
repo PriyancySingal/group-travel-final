@@ -1,47 +1,9 @@
 // Import necessary modules
-// import express from 'express';
-// import { Event } from '../models/Event.js'; // Assuming you have a model for events
-// import auth from '../middleware/auth.js'; // If you need authentication
+import express from 'express';
+import { Event } from '../models/Event.js'; // Assuming you have a model for events
 
-// const router = express.Router();
+const router = express.Router();
 
-// // POST route to create new event
-// router.post("/", auth, async (req, res) => {
-//   console.log("REQ BODY:", req.body);
-//   const { name, type, description, location, startDate, endDate, status, organizer, logo, hotel, guestCount, budget } = req.body;
-
-//   if (!name || !location || !startDate || !endDate || !organizer || !guestCount || !budget) {
-//     return res.status(400).json({ error: "All fields are required" });
-//   }
-
-//   try {
-//     const newEvent = new Event({
-//       name,
-//       type,
-//       description,
-//       location,
-//       startDate,
-//       endDate,
-//       status,
-//       organizer,
-//       logo,
-//       hotel,
-//       guestCount,
-//       budget,
-//       createdBy: req.user.userId, // Assuming you have authentication middleware
-//     });
-
-//     // Save the event to the database
-//     await newEvent.save();
-
-//     res.status(201).json({ success: true, data: newEvent });
-//   } catch (error) {
-//     console.error("Error creating event", error);
-//     res.status(500).json({ error: "Failed to create event" });
-//   }
-// });
-
-// export default router;
 router.get("/", async (req, res) => {
   try {
     const events = await Event.find().sort({ createdAt: -1 });
@@ -52,8 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-//  console.log("REQ BODY:", req.body);
-console.log("Received event data:", req.body); // Add this log
+  console.log("Received event data:", req.body); // Add this log
   const {
     name,
     type,
@@ -122,28 +83,4 @@ console.log("Received event data:", req.body); // Add this log
   }
 });
 
-//   try {
-//     const newEvent = new Event({
-//       name,
-//       type: type || "general",              // ✅ FIX
-//       description: description || "",
-//       location,
-//       startDate: new Date(startDate),        // ✅ FIX
-//       endDate: new Date(endDate),            // ✅ FIX
-//       status: status || "planning",
-//       organizer,
-//       logo: logo || "🎫",
-//       hotel: hotel || "",
-//       guestCount: Number(guestCount),        // ✅ FIX
-//       budget,
-//       createdBy: req.user.userId
-//     });
-
-//     await newEvent.save();
-
-//     res.status(201).json(newEvent);
-//   } catch (error) {
-//     console.error("Error creating event:", error);
-//     res.status(400).json({ error: error.message });
-//   }
-// });
+export default router;

@@ -1153,7 +1153,7 @@ static getInventoryByEventId(eventId) {
       throw new Error("No auth token found");
     }
 
-    const res = await fetch(`${BASE_URL}/api/events`, {
+    const res = await fetch(BASE_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"

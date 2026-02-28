@@ -1,0 +1,331 @@
+/* Event Schedule Styles */
+
+.event-schedule {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.event-schedule h2 {
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.schedule-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-day {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.schedule-day:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.day-header {
+  width: 100%;
+  padding: 16px;
+  background: rgba(102, 126, 234, 0.05);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.day-header:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.day-header.expanded {
+  border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.day-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.day-number {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.day-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.day-date {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.day-header.expanded .toggle-icon {
+  transform: rotate(0deg);
+}
+
+.day-activities {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(102, 126, 234, 0.5);
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: #667eea;
+  transform: translateX(4px);
+}
+
+.activity-time {
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.time-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.activity-details {
+  flex: 1;
+}
+
+.activity-details h4 {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+  color: white;
+}
+
+.activity-details p {
+  margin: 0 0 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 8px;
+  margin-top: 4px;
+}
+
+.dietary-tag {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.formal-tag {
+  background: rgba(156, 39, 176, 0.2);
+  color: #bb86fc;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.schedule-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .event-schedule {
+    padding: 16px;
+  }
+
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .day-info {
+    width: 100%;
+  }
+
+  .activity-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .activity-time {
+    min-width: auto;
+  }
+
+  .schedule-legend {
+    flex-direction: column;
+  }
+}
+
+/* High-contrast overrides to ensure readability on dark backgrounds */
+.event-schedule,
+.schedule-day,
+.day-activities,
+.activity-item {
+  color: #f8fbff;
+}
+
+.day-title,
+.activity-details h4,
+.time-badge,
+.day-number {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.activity-details h4 {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: #ffffff !important;
+}
+
+/* Force remove any background-clip/transparent-fill that may make headings invisible */
+.day-title,
+.activity-details h4 {
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+}
+
+/* Ensure titles sit above any decorative overlays */
+.event-schedule .day-title,
+.event-schedule .activity-details h4 {
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Push any pseudo-element overlays behind content */
+.schedule-day::before,
+.schedule-day::after,
+.activity-item::before,
+.activity-item::after,
+.day-header::before,
+.day-header::after {
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.65 !important;
+}
+
+.activity-details p,
+.day-date,
+.legend-item {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+.schedule-day {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.activity-item {
+  background: rgba(255,255,255,0.03);
+}
+
+.time-badge {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(102,126,234,0.95), rgba(118,75,162,0.95));
+}
+
+/* Make sure tags are readable */
+.tag,
+.dietary-tag,
+.formal-tag {
+  color: #fff;
+}
+
+/* Subtle elevation to separate text from background */
+.schedule-container,
+.schedule-day {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+

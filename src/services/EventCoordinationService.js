@@ -1183,14 +1183,14 @@ class EventCoordinationService {
   ======================= */
   static async getAllEvents() {
     let backendEvents = [];
-//===================removed for submission=====================
-    // try {
-    //   // ADD THIS LINE TO LOG THE URL BEING CALLED
-    //   console.log("Fetching events from:", BASE_URL);
-    //   backendEvents = await this.fetchBackendEvents();
-    // } catch (err) {
-    //   console.warn("Backend unavailable, demo events only");
-    // }
+
+    try {
+      // ADD THIS LINE TO LOG THE URL BEING CALLED
+      console.log("Fetching events from:", BASE_URL);
+      backendEvents = await this.fetchBackendEvents();
+    } catch (err) {
+      console.warn("Backend unavailable, demo events only");
+    }
 
     // Return demo events + fetched backend events
     return [
